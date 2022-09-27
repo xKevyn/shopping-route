@@ -14,7 +14,8 @@ class Shop:
           self.paths.append(path)
         
 class Stair:
-    def __init__(self, floor):
+    def __init__(self, name, floor):
+        self.name = name
         self.floor = floor
         self.paths = []
         self.coordinates = []
@@ -27,7 +28,23 @@ class Stair:
           self.paths.append(path)
         
 class Lift:
-    def __init__(self, floor):
+    def __init__(self, name, floor):
+        self.name = name
+        self.floor = floor
+        self.paths = []
+        self.coordinates = []
+    
+    def set_coordinates(self, coordinates):
+        self.coordinates = coordinates
+    
+    def add_path(self, path):
+        if path not in self.paths:
+          self.paths.append(path)
+        
+        
+class AccessWay:
+    def __init__(self, name, floor):
+        self.name = name
         self.floor = floor
         self.paths = []
         self.coordinates = []
@@ -104,6 +121,9 @@ if __name__ == "__main__":
         ["Uniqlo" , "Fashion", 8, 8, 3],
         ["MR. DIY" , "Lifestyle & Home Living", 5, 1, 3],
         ]
+    accessway_list = [
+        ["E1-1", 2, 8, 1],
+    ]
     
     paths = [ # shop1, shop2, distance, time, stamina
         "Harvey Norman", "McDonald", 34, 156, 324
