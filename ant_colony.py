@@ -141,6 +141,25 @@ if __name__ == "__main__":
     ]
     
     paths = [ # shop1, shop2, distance, time, stamina
+        #floor 1
+        ["E1-1","Optical Arts", 110, 110, 110],
+        ["E1-1","Lavender Bakery", 132, 132, 132],
+        ["E1-1","MyNews", 105, 105, 105],
+        ["Optical Arts","MyNews", 65, 65, 65],
+        ["Optical Arts","S-1", 90, 90, 90],
+        ["Optical Arts","Harvey Norman", 96, 96, 96],
+        ["Harvey Norman","S-1", 100, 100, 100],
+        ["Harvey Norman","KFC", 158, 158, 158],
+        ["KFC","E2-1", 69, 69, 69],
+        ["E2-1","S-1", 250, 250, 250],
+        ["E2-1","7-Eleven", 75, 75, 75],
+        ["7-Eleven","McDonald", 80, 80, 80],
+        ["MyNews","S-1", 85, 85, 85],
+        ["MyNews","McDonald", 200, 200, 200],
+        ["MyNews","Lavender Bakery", 70, 70, 70],
+        ["S-1","McDonald", 114, 114, 114],
+        ["Lavender Bakery","L1-1", 120, 120, 120],
+        ["L-1","McDonald", 100, 100, 100],
         #floor 2
         ["Adidas", "L-2", 126, 156, 324],
         ["Komugi", "L-2", 54, 156, 324],
