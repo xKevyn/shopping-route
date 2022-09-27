@@ -31,7 +31,11 @@ class Path:
     def deposit_pheromone(self, ants):
     # 1. search for ants that uses the raod
     # 2. deposit pheromone using the inversely proportionate relationship between path length and deposited pheromone
-        ...
+        for ant in ants:
+            for road in ant.path:
+                if self == road:
+                    self.pheromone += 1/(ant.get_path_length())
+                    break
 
 class Ant:
     def __init__(self):
