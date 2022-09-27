@@ -133,7 +133,7 @@ if __name__ == "__main__":
         ["E1-3", 0, 5, 3],
         ["E2-3", 10, 5, 3],
         ["S-3", 5, 5, 3],
-        ["L-3", 5, 9, 3],
+        ["L-3", 5, 9, 3]
     ]
     
     paths = [ # shop1, shop2, distance, time, stamina
