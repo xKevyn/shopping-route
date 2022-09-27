@@ -26,7 +26,7 @@ class Path:
         
     def evaporate_pheromone(self, rho):
     # update the pheromone of the road
-        ...
+        self.pheromone = (1-rho)*self.pheromone
     
     def deposit_pheromone(self, ants):
     # 1. search for ants that uses the raod
@@ -46,18 +46,37 @@ class Ant:
         ...
         
     def get_path_length(self):
-        ...
+        path_length = sum([road.cost for road in self.path])
+        return path_length
     # calculate path length based on self.path
        # return path_length
        
     def reset(self):
         self.path = []
         self.cities = []
-        
+
+def get_frequency_of_paths(ants):
+    paths = []
+    cities = []
+    frequencies = []
+    for ant in ants:
+        if len(ant.path) != 0:
+            if ant.path in paths:
+                frequencies[paths.index(ant.path)] += 1
+            else:
+                paths.append(ant.path)
+                cities.append(ant.cities)
+                frequencies.append(1)
+    return [frequencies, paths, cities]
+
 def get_percentage_of_dominant_path(ants):
-    ...
-    #return percentage
-        
+    [frequencies, _, _] = get_frequency_of_paths(ants)
+    if len(frequencies) == 0:
+        percentage = 0
+    else:
+        percentage = max(frequencies)/sum(frequencies)
+    return percentage
+
 if __name__ == "__main__":
     
     shop_list = [ # [ name, category, x, y, floor]
