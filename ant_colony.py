@@ -85,25 +85,24 @@ def get_percentage_of_dominant_path(ants):
 if __name__ == "__main__":
     
     shop_list = [ # [ name, category, x, y, floor]
-        ["Harvey Norman","Digital & Home Appliances", 1],
-        ["McDonald" , "Food & Beverages", 1],
-        ["KFC" , "Food & Beverages", 1],
-        ["MyNews" , "Supermarket", 1],
-        ["Optical Arts" , "Optical", 1],
-        ["Lavender Bakery" , "Bakery", 1],
-        ["7-Eleven" , "Supermarket", 1],
-        ["Adidas","Fashion", 2],
-        ["Uniqlo" , "Fashion", 2],
-        ["Starbuck" , "Food & Beverages", 2],
-        ["Popular" , "Leisure & Entertainment", 2],
-        ["SenQ" , "Digital & Home Appliances", 2],
-        ["Komugi" , "Bakery", 2],
+        ["Harvey Norman","Digital & Home Appliances", 2, 8, 1],
+        ["McDonald" , "Food & Beverages", 7, 7, 1],
+        ["KFC" , "Food & Beverages", 3, 4, 1],
+        ["MyNews" , "Supermarket", 3, 6, 1],
+        ["Optical Arts" , "Optical", 3, 4, 1],
+        ["Lavender Bakery" , "Bakery", 2, 8, 1],
+        ["7-Eleven" , "Supermarket", 9, 7, 1],
+        ["Adidas","Fashion", 2, 7, 2],
+        ["Uniqlo" , "Fashion", 5, 7, 2],
+        ["Starbuck" , "Food & Beverages", 2, 2, 2],
+        ["Popular" , "Leisure & Entertainment", 5, 2, 2],
+        ["SenQ" , "Digital & Home Appliances", 8, 7, 2],
+        ["Komugi" , "Bakery", 8, 2, 2],
         ["Poh Kong ","Jewellery", 2, 3, 3],
         ["Brands Outlet" , "Fashion", 2, 7, 3],
         ["Elle" , "Fashion", 8, 7, 3],
         ["Uniqlo" , "Fashion", 8, 8, 3],
         ["MR. DIY" , "Lifestyle & Home Living", 5, 1, 3],
-        ["Family Mart " , "Supermarket", 3]
         ]
     
     paths = [ # shop1, shop2, distance, time, stamina
