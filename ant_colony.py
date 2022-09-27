@@ -98,11 +98,11 @@ if __name__ == "__main__":
         ["Popular" , "Leisure & Entertainment", 2],
         ["SenQ" , "Digital & Home Appliances", 2],
         ["Komugi" , "Bakery", 2],
-        ["Poh Kong ","Jewellery", 3],
-        ["Brands Outlet" , "Fashion", 3],
-        ["Elle" , "Fashion", 3],
-        ["Uniqlo" , "Fashion", 3],
-        ["MR. DIY" , "Lifestyle & Home Living", 3],
+        ["Poh Kong ","Jewellery", 2, 3, 3],
+        ["Brands Outlet" , "Fashion", 2, 7, 3],
+        ["Elle" , "Fashion", 8, 7, 3],
+        ["Uniqlo" , "Fashion", 8, 8, 3],
+        ["MR. DIY" , "Lifestyle & Home Living", 5, 1, 3],
         ["Family Mart " , "Supermarket", 3]
         ]
     
