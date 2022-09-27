@@ -121,6 +121,10 @@ if __name__ == "__main__":
         ["Uniqlo" , "Fashion", 8, 8, 3],
         ["MR. DIY" , "Lifestyle & Home Living", 5, 1, 3],
         ]
+    
+    # E1/E2: accessway (entrance/exit)
+    # S: stair
+    # L: lift
     misc_list = [
         ["E1-1", 0, 5, 1],
         ["E2-1", 10, 5, 1],
