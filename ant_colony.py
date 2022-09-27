@@ -127,7 +127,23 @@ if __name__ == "__main__":
     
     paths = [ # shop1, shop2, distance, time, stamina
         "Harvey Norman", "McDonald", 34, 156, 324
-        ]
+        ],
+        ["Poh Kong", "E1", 180, 620, 1344],
+        ["Poh Kong", "S", 50, 210, 429],
+        ["Poh Kong", "Uniqlo", 120, 520, 1040],
+        ["Uniqlo", "S", 174, 612, 1202],
+        ["Uniqlo", "E2", 200, 900, 1800],
+        ["S", "E2", 180, 620, 1344],
+        ["Elle", "E2", 96, 378, 780],
+        ["Elle", "S", 72, 280, 560],
+        ["Elle", "L", 150, 600, 1200],
+        ["MR. DIY", "S", 70, 280, 560],
+        ["MR. DIY", "L", 50, 210, 429],
+        ["Brands Outlet", "L", 160, 640, 1300],
+        ["Brands Outlet", "S", 90, 360, 720],
+        ["Brands Outlet", "E1", 30, 120, 240],
+        ["S", "E1", 176, 616, 1212]
+
     
     shops = {}
     for coord1, coord2, name, floor in shop_list:
