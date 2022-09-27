@@ -1,29 +1,145 @@
-class Node:
+class Shop:
     def __init__(self, name, category, floor):
         self.name = name
         self.category = category
         self.floor = floor
+        self.paths = []
+        self.coordinates = []
     
+    def set_coordinates(self, coordinates):
+        self.coordinates = coordinates
+    
+    def add_road(self, path):
+        if path not in self.paths:
+          self.paths.append(path)
+        
+class Stair:
+    def __init__(self, floor):
+        self.floor = floor
+        self.paths = []
+        self.coordinates = []
+    
+    def set_coordinates(self, coordinates):
+        self.coordinates = coordinates
+    
+    def add_road(self, path):
+        if path not in self.paths:
+          self.paths.append(path)
+        
+class Lift:
+    def __init__(self, floor):
+        self.floor = floor
+        self.paths = []
+        self.coordinates = []
+    
+    def set_coordinates(self, coordinates):
+        self.coordinates = coordinates
+    
+    def add_road(self, path):
+        if path not in self.paths:
+          self.paths.append(path)
+        
 class Path:
-    def __init__(self, node1, node2, distance, time, stamina):
-        self.node1 = node1
-        self.node2 = node2
+    def __init__(self, connected_nodes, distance, time, stamina, pheromone=0): # or random small number
+        self.connected_nodes = connected_nodes
         self.distance = distance
         self.time = time
         self.stamina = stamina
+        self.pheromone = pheromone
         
-class AntColony:
-    def __init__(self, paths):
-        self.paths = paths
+    def set_pheromone(self, pheromone):
+        self.pheromone = pheromone
         
-    def initialisation():
+    def evaporate_pheromone(self, rho):
+    # update the pheromone of the road
+        ...
+    
+    def deposit_pheromone(self, ants):
+    # 1. search for ants that uses the raod
+    # 2. deposit pheromone using the inversely proportionate relationship between path length and deposited pheromone
+        ...
+    
+    
+
+class Ant:
+    def __init__(self):
+      self.shops = [] # shops the ant passes through, in sequence
+      self.path = [] # paths the ant uses, in sequence
+        
+    def get_path(self, origin, destination, alpha):
         ...
         
+    def get_path_length(self):
+        ...
+    # calculate path length based on self.path
+       # return path_length
+       
+    def reset(self):
+        self.path = []
+        self.cities = []
+        
+def get_percentage_of_dominant_path(ants):
+    ...
+    #return percentage
+        
 if __name__ == "__main__":
-    state_space = [
-        Path(Node('a', 't', 1), Node('b', 't', 1), 1, 1, 1), 
-        Path(Node('a', 't', 1), Node('c', 't', 1), 2, 2, 3), 
-        Path(Node('a', 't', 1), Node('d', 't', 1), 3, 3, 3)
+    
+    shop_list = [ # [ name, category, x, y, floor]
+        ["Harvey Norman","Digital & Home Appliances", 1],
+        ["McDonald" , "Food & Beverages", 1],
+        ["KFC" , "Food & Beverages", 1],
+        ["MyNews" , "Supermarket", 1],
+        ["Optical Arts" , "Optical", 1],
+        ["Lavender Bakery" , "Bakery", 1],
+        ["7-Eleven" , "Supermarket", 1],
+        ["Adidas","Fashion", 2],
+        ["Uniqlo" , "Fashion", 2],
+        ["Starbuck" , "Food & Beverages", 2],
+        ["Popular" , "Leisure & Entertainment", 2],
+        ["SenQ" , "Digital & Home Appliances", 2],
+        ["Komugi" , "Bakery", 2],
+        ["Poh Kong ","Jewellery", 3],
+        ["Brands Outlet" , "Fashion", 3],
+        ["Elle" , "Fashion", 3],
+        ["Uniqlo" , "Fashion", 3],
+        ["MR. DIY" , "Lifestyle & Home Living", 3],
+        ["Family Mart " , "Supermarket", 3]
         ]
     
-    print(state_space[0].node1.name)
+    paths = [ # shop1, shop2, distance, time, stamina
+        "Harvey Norman", "McDonald", 34, 156, 324
+        ]
+    
+    shops = {}
+    for coord1, coord2, name, floor in shop_list:
+      shops[name] = Shop(name)
+      shops[name].set_coordinates([coord1, coord2])
+      
+    paths = []
+    for shop1, shop2, distance, time, stamina in paths:
+      path = Path([shops[shop1], shops[shop2]], distance, time, stamina)
+      shops[shop1].add_path(path)
+      shops[shop2].add_path(path)
+      paths.append(path)
+      
+    origin = shops['Harvey Norman']
+    destination = shops['Family Mart']
+    
+    n_ant = 10
+    alpha = 1
+    rho = 0.1
+    
+    initial_pheromone = 0.01
+    
+    for path in paths:
+      path.set_pheromone(initial_pheromone)
+      
+    ants = [Ant() for _ in range(n_ant)]
+    
+    
+        
+    # state_space = [
+    #     Path(Node('a', 't', 1), Node('b', 't', 1), 1, 1, 1), 
+    #     Path(Node('a', 't', 1), Node('c', 't', 1), 2, 2, 3), 
+    #     Path(Node('a', 't', 1), Node('d', 't', 1), 3, 3, 3)
+    #     ]
