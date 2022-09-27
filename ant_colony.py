@@ -137,8 +137,27 @@ if __name__ == "__main__":
     ]
     
     paths = [ # shop1, shop2, distance, time, stamina
-        "Harvey Norman", "McDonald", 34, 156, 324
-        ],
+        #floor 2
+        ["Adidas", "L-2", 126, 156, 324],
+        ["Komugi", "L-2", 54, 156, 324],
+        ["SenQ", "L-2", 126, 156, 324],
+        ["Adidas", "Komugi", 79, 156, 324],
+        ["Komugi", "SenQ", 98, 156, 324],
+        ["Adidas", "E1-2", 67, 156, 324],
+        ["Adidas", "S-2", 56, 156, 324],
+        ["Komugi", "S-2", 34, 156, 324],
+        ["SenQ", "S-2", 97, 156, 324],
+        ["SenQ", "E2-2", 67, 156, 324],
+        ["E1-2", "S-2", 180, 156, 324],
+        ["E2-2", "S-2", 219, 156, 324],
+        ["Starbuck", "E1-2", 164, 156, 324],
+        ["Starbuck", "S-2", 158, 156, 324],
+        ["Popular", "S-2", 116, 156, 324],
+        ["Uniqlo", "S-2", 149, 156, 324],
+        ["Uniqlo", "E2-2", 92, 156, 324],
+        ["Starbuck", "Popular", 84, 156, 324],
+        ["Popular", "Uniqlo", 72, 156, 324],
+        #floor 3
         ["Poh Kong", "E1-3", 180, 620, 1344],
         ["Poh Kong", "S-3", 50, 210, 429],
         ["Poh Kong", "Uniqlo", 120, 520, 1040],
@@ -154,7 +173,7 @@ if __name__ == "__main__":
         ["Brands Outlet", "S-3", 90, 360, 720],
         ["Brands Outlet", "E1-3", 30, 120, 240],
         ["S-3", "E1-3", 176, 616, 1212]
-
+        ]
     
     shops = {}
     for coord1, coord2, name, floor in shop_list:
