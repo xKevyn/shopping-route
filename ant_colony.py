@@ -79,7 +79,7 @@ def get_percentage_of_dominant_path(ants):
 
 if __name__ == "__main__":
     
-    shop_list = [ # [ name, category, x, y, floor]
+    location_list = [ # [ name, category, x, y, floor]
         ["Harvey Norman","Digital & Home Appliances", 2, 8, 1],
         ["McDonald" , "Food & Beverages", 7, 7, 1],
         ["KFC" , "Food & Beverages", 3, 4, 1],
@@ -88,7 +88,7 @@ if __name__ == "__main__":
         ["Lavender Bakery" , "Bakery", 2, 8, 1],
         ["7-Eleven" , "Supermarket", 9, 7, 1],
         ["Adidas","Fashion", 2, 7, 2],
-        ["Uniqlo" , "Fashion", 5, 7, 2],
+        ["Uniqlo-2" , "Fashion", 5, 7, 2],
         ["Starbuck" , "Food & Beverages", 2, 2, 2],
         ["Popular" , "Leisure & Entertainment", 5, 2, 2],
         ["SenQ" , "Digital & Home Appliances", 8, 7, 2],
@@ -96,27 +96,39 @@ if __name__ == "__main__":
         ["Poh Kong ","Jewellery", 2, 3, 3],
         ["Brands Outlet" , "Fashion", 2, 7, 3],
         ["Elle" , "Fashion", 8, 7, 3],
-        ["Uniqlo" , "Fashion", 8, 8, 3],
+        ["Uniqlo-3" , "Fashion", 8, 8, 3],
         ["MR. DIY" , "Lifestyle & Home Living", 5, 1, 3],
+        ["E1-1","Entrance", 0, 5, 1],
+        ["E2-1","Entrance", 10, 5, 1],
+        ["E1-2","Entrance", 0, 5, 2],
+        ["E2-2","Entrance", 10, 5, 2],
+        ["E1-3","Entrance", 0, 5, 3],
+        ["E2-3","Entrance", 10, 5, 3],
+        ["L-1","Lift", 5, 9, 1],
+        ["L-2","Lift", 5, 9, 2],
+        ["L-3","Lift", 5, 9, 3],
+        ["S-1","Stair", 5, 5, 1],
+        ["S-2","Stair", 5, 5, 2],
+        ["S-3","Stair", 5, 5, 3]
         ]
     
     # E1/E2: accessway (entrance/exit)
     # S: stair
     # L: lift
-    misc_list = [
-        ["E1-1", 0, 5, 1],
-        ["E2-1", 10, 5, 1],
-        ["S-1", 5, 5, 1],
-        ["L-1", 5, 9, 1],
-        ["E1-2", 0, 5, 2],
-        ["E2-2", 10, 5, 2],
-        ["S-2", 5, 5, 2],
-        ["L-2", 5, 9, 2],
-        ["E1-3", 0, 5, 3],
-        ["E2-3", 10, 5, 3],
-        ["S-3", 5, 5, 3],
-        ["L-3", 5, 9, 3]
-    ]
+#     misc_list = [
+#     ["E1-1", 0, 5, 1],
+#     ["E2-1", 10, 5, 1],
+#     ["S-1", 5, 5, 1],
+#     ["L-1", 5, 9, 1],
+#     ["E1-2", 0, 5, 2],
+#     ["E2-2", 10, 5, 2],
+#     ["S-2", 5, 5, 2],
+#     ["L-2", 5, 9, 2],
+#     ["E1-3", 0, 5, 3],
+#     ["E2-3", 10, 5, 3],
+#     ["S-3", 5, 5, 3],
+#     ["L-3", 5, 9, 3]
+#    ]
     
     paths = [ # shop1, shop2, distance, time, stamina
         #floor 1
