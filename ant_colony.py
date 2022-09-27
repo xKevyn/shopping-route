@@ -1,50 +1,7 @@
-class Shop:
+class Node:
     def __init__(self, name, category, floor):
         self.name = name
         self.category = category
-        self.floor = floor
-        self.paths = []
-        self.coordinates = []
-    
-    def set_coordinates(self, coordinates):
-        self.coordinates = coordinates
-    
-    def add_path(self, path):
-        if path not in self.paths:
-          self.paths.append(path)
-        
-class Stair:
-    def __init__(self, name, floor):
-        self.name = name
-        self.floor = floor
-        self.paths = []
-        self.coordinates = []
-    
-    def set_coordinates(self, coordinates):
-        self.coordinates = coordinates
-    
-    def add_path(self, path):
-        if path not in self.paths:
-          self.paths.append(path)
-        
-class Lift:
-    def __init__(self, name, floor):
-        self.name = name
-        self.floor = floor
-        self.paths = []
-        self.coordinates = []
-    
-    def set_coordinates(self, coordinates):
-        self.coordinates = coordinates
-    
-    def add_path(self, path):
-        if path not in self.paths:
-          self.paths.append(path)
-        
-        
-class AccessWay:
-    def __init__(self, name, floor):
-        self.name = name
         self.floor = floor
         self.paths = []
         self.coordinates = []
