@@ -32,8 +32,6 @@ class Path:
     # 1. search for ants that uses the raod
     # 2. deposit pheromone using the inversely proportionate relationship between path length and deposited pheromone
         ...
-    
-    
 
 class Ant:
     def __init__(self):
