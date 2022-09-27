@@ -121,7 +121,7 @@ if __name__ == "__main__":
         ["Uniqlo" , "Fashion", 8, 8, 3],
         ["MR. DIY" , "Lifestyle & Home Living", 5, 1, 3],
         ]
-    accessway_list = [
+    misc_list = [
         ["E1-1", 2, 8, 1],
     ]
     
