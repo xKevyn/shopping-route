@@ -9,7 +9,7 @@ class Shop:
     def set_coordinates(self, coordinates):
         self.coordinates = coordinates
     
-    def add_road(self, path):
+    def add_path(self, path):
         if path not in self.paths:
           self.paths.append(path)
         
@@ -22,7 +22,7 @@ class Stair:
     def set_coordinates(self, coordinates):
         self.coordinates = coordinates
     
-    def add_road(self, path):
+    def add_path(self, path):
         if path not in self.paths:
           self.paths.append(path)
         
@@ -35,7 +35,7 @@ class Lift:
     def set_coordinates(self, coordinates):
         self.coordinates = coordinates
     
-    def add_road(self, path):
+    def add_path(self, path):
         if path not in self.paths:
           self.paths.append(path)
         
