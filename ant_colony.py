@@ -136,6 +136,23 @@ def draw_pheromone(ax, roads):
     lines.append(ax.plot(coord_x, coord_y, coord_z, c='red', linewidth=road.pheromone*5))
   return lines
 
+def draw_path(ax, solution):
+    lines = []
+    colors = []
+    count = 0
+    for i in range(20):
+        colors.append('#%06X' % randint(0, 0xFFFFFF))
+    for path in solution:
+        for road in path[0]:
+            from_coord = road.connected_nodes[0].coordinates
+            to_coord = road.connected_nodes[1].coordinates
+            coord_x = [from_coord[0], to_coord[0]]
+            coord_y = [from_coord[1], to_coord[1]]
+            coord_z = [road.connected_nodes[0].floor, road.connected_nodes[1].floor]
+            lines.append(ax.plot(coord_x, coord_y, coord_z, c=colors[count], linewidth=1))
+        count += 1
+    return lines
+
 def ann(iteration, roads, ants, origin, destination, max_iteration=200, percentage_of_dominant_path=0.9):
     while iteration < max_iteration or get_percentage_of_dominant_path(ants) < percentage_of_dominant_path: # termination conditions
       # loop through all the ants to identify the path of each ant
