@@ -139,6 +139,25 @@ def draw_pheromone(ax, roads):
 def ANN(ants, origin, destination, paths, max_iteration, percentage_of_dominant_path):
     ...
 
+def get_user_input(node_list):
+    destination_list = []
+    in_process = True
+    print("Please select your destination: ")
+    for i in range(len(node_list)):
+        print(str(i+1) + ". " + node_list[i][0])
+
+    while in_process:
+        current_input = []
+        destination = input("Enter your destination number: ")
+        destination_list.append(node_list[int(destination)-1])
+        for i in range(len(destination_list)):
+            current_input.append(destination_list[i][0])
+        print(current_input)
+        done = input("Do you wish do exit? (Y/N)")
+        if done == "Y":
+            in_process = False
+
+    return destination_list
 if __name__ == "__main__":
     
     location_list = [ # [ name, category, x, y, floor]
