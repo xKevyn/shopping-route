@@ -248,6 +248,10 @@ if __name__ == "__main__":
     origin = nodes['Harvey Norman']
     destination = nodes['Brands Outlet']
     
+    shop_list = [nodes['E1-1']]
+    shop_list.append(origin)    
+    shop_list.append(destination)
+    
     n_ant = 20
     alpha = 1
     rho = 0.1
@@ -266,29 +270,27 @@ if __name__ == "__main__":
     ax = create_graph(nodes)
     lines = draw_pheromone(ax, paths)
     
-    iteration = 0
-    while iteration < max_iteration or get_percentage_of_dominant_path(ants) < percentage_of_dominant_path: # termination conditions
-      # loop through all the ants to identify the path of each ant
-      for ant in ants:
-        # reset the path of the ant
-        ant.reset()
-        # identify the path of the ant
-        ant.get_path(origin, destination, alpha)
-      # loop through all paths
-      for path in paths:
-        # evaporate the pheromone on the path
-        path.evaporate_pheromone(rho)
-        # deposit the pheromone
-        path.deposit_pheromone(ants)
-      # increase iteration count
-       
-      iteration += 1
-    # after exiting the loop, return the most occurred path as the solution
-    # visualise
-    for l in lines:
-      del l
-    lines = draw_pheromone(ax, paths)
-    plt.pause(0.05)
-       
-        
-
+    for i in range(len(shop_list)-1):
+        iteration = 0
+        while iteration < max_iteration or get_percentage_of_dominant_path(ants) < percentage_of_dominant_path: # termination conditions
+          # loop through all the ants to identify the path of each ant
+          for ant in ants:
+            # reset the path of the ant
+            ant.reset()
+            # identify the path of the ant
+            ant.get_path(shop_list[i], shop_list[i+1], alpha)
+          # loop through all paths
+          for path in paths:
+            # evaporate the pheromone on the path
+            path.evaporate_pheromone(rho)
+            # deposit the pheromone
+            path.deposit_pheromone(ants)
+          # increase iteration count
+           
+          iteration += 1
+        # after exiting the loop, return the most occurred path as the solution
+        # visualise
+        for l in lines:
+          del l
+        lines = draw_pheromone(ax, paths)
+        plt.pause(0.05)
