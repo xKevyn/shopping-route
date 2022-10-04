@@ -136,18 +136,6 @@ def draw_pheromone(ax, roads):
     lines.append(ax.plot(coord_x, coord_y, coord_z, c='red', linewidth=road.pheromone*5))
   return lines
 
-def draw_path(ax, solution):
-    lines = []
-    for path in solution:
-        for road in path[0]:
-            from_coord = road.connected_nodes[0].coordinates
-            to_coord = road.connected_nodes[1].coordinates
-            coord_x = [from_coord[0], to_coord[0]]
-            coord_y = [from_coord[1], to_coord[1]]
-            coord_z = [road.connected_nodes[0].floor, road.connected_nodes[1].floor]
-            lines.append(ax.plot(coord_x, coord_y, coord_z, c='k', linewidth=1))
-    return lines
-
 def ann(iteration, roads, ants, origin, destination, max_iteration=200, percentage_of_dominant_path=0.9):
     while iteration < max_iteration or get_percentage_of_dominant_path(ants) < percentage_of_dominant_path: # termination conditions
       # loop through all the ants to identify the path of each ant
@@ -166,31 +154,7 @@ def ann(iteration, roads, ants, origin, destination, max_iteration=200, percenta
         
       # increase iteration count
       iteration += 1
-    [_, _, paths] = get_frequency_of_paths(ants)
-    return paths
-
-def get_user_input(node_list):
-    destination_list = []
-    in_process = True
-    print("Please select your destination: ")
-    for i in range(len(node_list)):
-        print(str(i+1) + ". " + node_list[i][0])
-    origin = input("Please enter your current location number: ")
-    destination_list.append(node_list[int(origin)-1])
-
-    while in_process:
-        current_input = []
-        destination = input("Please enter your destination number: ")
-        destination_list.append(node_list[int(destination)-1])
-        for i in range(len(destination_list)):
-            current_input.append(destination_list[i][0])
-        print(current_input)
-        done = input("Do you wish do exit? (Y/N)")
-        if done == "Y":
-            in_process = False
-
-    return destination_list
-
+      
 if __name__ == "__main__":
     
     location_list = [ # [ name, category, x, y, floor]
@@ -308,6 +272,7 @@ if __name__ == "__main__":
     shop_list = [nodes['E1-1']]
     shop_list.append(origin)    
     shop_list.append(destination)
+    shop_list.append(nodes['E1-1'])
     
     n_ant = 20
     alpha = 1
@@ -315,9 +280,6 @@ if __name__ == "__main__":
     
     initial_pheromone = 0.01
     
-    for road in roads:
-      road.set_pheromone(initial_pheromone)
-      
     ants = [Ant() for _ in range(n_ant)]
     
      # termination threshold
@@ -325,20 +287,28 @@ if __name__ == "__main__":
     percentage_of_dominant_path = 0.9
     
     ax = create_graph(nodes)
-    
+    lines = draw_pheromone(ax, roads)
     iteration = 0
     
-    solution = []
-    for i in range(len(shop_list)):
-        if(shop_list[i] != shop_list[-1]):
-            path = ann(iteration, roads, ants, shop_list[i], shop_list[i+1])
-        solution.append(path)
+    solutions = []
+    
+    for i in range(len(shop_list)-1):
+        for road in roads:
+            road.set_pheromone(initial_pheromone)
+        ann(iteration, roads, ants, shop_list[i], shop_list[i+1])
         
-    solution2 = [item for sublist in solution for item in sublist]
-    solution3 = [item.name for sublist in solution2 for item in sublist]
-    # after exiting the loop, return the most occurred path as the solution
-    # visualise
-    print(solution3)
-    draw_path(ax,solution)
-        
+        [freq, _, nodes_used] = get_frequency_of_paths(ants)    
+        solutions.append([n.name for n in nodes_used[freq.index(max(freq))]])
+            # after exiting the loop, return the most occurred path as the solution
+            # visualise
+            
+    for i, solution in enumerate(solutions):
+        if(i != len(solutions)-1):
+            solution.pop(-1)
+    solution = [item for sublist in solutions for item in sublist]
+    print(solution)
+    for l in lines:
+      del l
+    lines = draw_pheromone(ax, roads)
+    plt.pause(0.05)
 
