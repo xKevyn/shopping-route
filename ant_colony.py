@@ -12,7 +12,7 @@ class Node:
     def set_coordinates(self, coordinates):
         self.coordinates = coordinates
     
-    def add_path(self, path):
+    def add_road(self, path):
         if path not in self.roads:
           self.roads.append(path)
         
@@ -125,23 +125,23 @@ def create_graph(nodes):
           ax.text(nodes_x[i], nodes_y[i], nodes_z[i], node, size=7, color="k")
       return ax
     
-def draw_pheromone(ax, paths):
+def draw_pheromone(ax, roads):
   lines = []
-  for path in paths:
-    from_coord = path.connected_nodes[0].coordinates
-    to_coord = path.connected_nodes[1].coordinates
+  for road in roads:
+    from_coord = road.connected_nodes[0].coordinates
+    to_coord = road.connected_nodes[1].coordinates
     coord_x = [from_coord[0], to_coord[0]]
     coord_y = [from_coord[1], to_coord[1]]
-    coord_z = [path.connected_nodes[0].floor, path.connected_nodes[1].floor]
-    lines.append(ax.plot(coord_x, coord_y, coord_z, c='red', linewidth=path.pheromone*5))
+    coord_z = [road.connected_nodes[0].floor, road.connected_nodes[1].floor]
+    lines.append(ax.plot(coord_x, coord_y, coord_z, c='red', linewidth=road.pheromone*5))
   return lines
 
 def ANN(ants, origin, destination, paths, max_iteration, percentage_of_dominant_path):
-    
+    ...
 
 if __name__ == "__main__":
     
-    node_list = [ # [ name, category, x, y, floor]
+    location_list = [ # [ name, category, x, y, floor]
         ["Harvey Norman","Digital & Home Appliances", 5, 3, 1],
         ["McDonald" , "Food & Beverages", 7, 7, 1],
         ["KFC" , "Food & Beverages", 8, 4, 1],
@@ -174,7 +174,7 @@ if __name__ == "__main__":
         ["S-3","Stair", 5, 5, 3]
         ]
     
-    path_cost = [ # node1, node2, distance, time, stamina
+    step_cost = [ # node1, node2, distance, time, stamina
         #floor 1
         ["E1-1","Optical Arts", 110, 110, 110],
         ["E1-1","Lavender Bakery", 132, 132, 132],
@@ -240,16 +240,15 @@ if __name__ == "__main__":
         ]
     
     nodes = {}
-    for name, category, coord1, coord2, floor in node_list:
+    for name, category, coord1, coord2, floor in location_list:
       nodes[name] = Node(name, category, floor)
       nodes[name].set_coordinates([coord1, coord2])
-      
-    paths = []
-    for node1, node2, distance, time, stamina in path_cost:
-      path = Path([nodes[node1], nodes[node2]], distance, time, stamina)
-      nodes[node1].add_path(path)
-      nodes[node2].add_path(path)
-      paths.append(path)
+    roads = []
+    for node1, node2, distance, time, stamina in step_cost:
+      road = Road([nodes[node1], nodes[node2]], distance, time, stamina)
+      nodes[node1].add_road(road)
+      nodes[node2].add_road(road)
+      roads.append(road)
       
     origin = nodes['Harvey Norman']
     destination = nodes['Brands Outlet']
@@ -264,8 +263,8 @@ if __name__ == "__main__":
     
     initial_pheromone = 0.01
     
-    for path in paths:
-      path.set_pheromone(initial_pheromone)
+    for road in roads:
+      road.set_pheromone(initial_pheromone)
       
     ants = [Ant() for _ in range(n_ant)]
     
@@ -274,7 +273,7 @@ if __name__ == "__main__":
     percentage_of_dominant_path = 0.9
     
     ax = create_graph(nodes)
-    lines = draw_pheromone(ax, paths)
+    lines = draw_pheromone(ax, roads)
     
     for i in range(len(shop_list)-1):
         iteration = 0
@@ -285,12 +284,12 @@ if __name__ == "__main__":
             ant.reset()
             # identify the path of the ant
             ant.get_path(shop_list[i], shop_list[i+1], alpha)
-          # loop through all paths
-          for path in paths:
+          # loop through all roads
+          for road in roads:
             # evaporate the pheromone on the path
-            path.evaporate_pheromone(rho)
+            road.evaporate_pheromone(rho)
             # deposit the pheromone
-            path.deposit_pheromone(ants)
+            road.deposit_pheromone(ants)
           # increase iteration count
            
           iteration += 1
@@ -298,9 +297,8 @@ if __name__ == "__main__":
         # visualise
         for l in lines:
           del l
-        lines = draw_pheromone(ax, paths)
+        lines = draw_pheromone(ax, roads)
         plt.pause(0.05)
-        
        
         
 
