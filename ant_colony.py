@@ -6,17 +6,17 @@ class Node:
         self.name = name
         self.category = category
         self.floor = floor
-        self.paths = []
+        self.roads = []
         self.coordinates = []
     
     def set_coordinates(self, coordinates):
         self.coordinates = coordinates
     
     def add_path(self, path):
-        if path not in self.paths:
-          self.paths.append(path)
+        if path not in self.roads:
+          self.roads.append(path)
         
-class Path:
+class Road:
     def __init__(self, connected_nodes, distance, time, stamina, pheromone=0): # or random small number
         self.connected_nodes = connected_nodes
         self.distance = distance
@@ -43,30 +43,33 @@ class Path:
 class Ant:
     def __init__(self):
       self.nodes = [] # nodes the ant passes through, in sequence
-      self.path = [] # paths the ant uses, in sequence
-        
+      self.path = [] # roads the ant uses, in sequence
+    
     def get_path(self, origin, destination, alpha):
+    # 1. append origin to the self.nodes
+    # 2. if the last node is not destination, search for the next node to go
+    # 3. after getting to the destination, remove the loop within the path, i.e. if there are repeated nodes in self.nodes, remove the nodes and the roads in between the repetition
         self.nodes.append(origin)
         while self.nodes[-1] is not destination:
             if len(self.path) > 0:
-                available_paths = [p for p in self.nodes[-1].paths if p is not self.path[-1]]
+                available_roads = [r for r in self.nodes[-1].roads if r is not self.path[-1]]
             else:
-                available_paths = self.nodes[-1].paths
-            if len(available_paths) == 0:
-                available_paths = [self.path[-1]]
-            pheromones_alpha = [p.pheromone**alpha for p in available_paths]
+                available_roads = self.nodes[-1].roads
+            if len(available_roads) == 0:
+                available_roads = [self.path[-1]]
+            pheromones_alpha = [r.pheromone**alpha for r in available_roads]
             probabilities = [pa/sum(pheromones_alpha) for pa in pheromones_alpha]
             acc_probabilities = [sum(probabilities[:i+1]) for i,p in enumerate(probabilities)]
             chosen_value = random.random()
             for ai, ap in enumerate(acc_probabilities):
                 if ap > chosen_value:
                     break
-            self.path.append(available_paths[ai])
+            self.path.append(available_roads[ai])
             if self.path[-1].connected_nodes[0] is self.nodes[-1]:
                 self.nodes.append(self.path[-1].connected_nodes[1])
             else:
                 self.nodes.append(self.path[-1].connected_nodes[0])
-                
+            
         while len(set(self.nodes)) != len(self.nodes):
             for i, node in enumerate(set(self.nodes)):
                 node_indices = [i for i, x in enumerate(self.nodes) if x == node]
@@ -76,13 +79,13 @@ class Ant:
                     break
         
     def get_path_distance(self):
-        path_distance = sum([path.distance for path in self.path])
+        path_distance = sum([i.distance for i in self.path])
         return path_distance
     # calculate path distance based on self.path
        # return path_distance
        
     def get_path_all_cost(self):
-        path_all_cost = sum([path.distance for path in self.path]) + sum([path.time for path in self.path]) + sum([path.stamina for path in self.path])
+        path_all_cost = sum([i.distance for i in self.path]) + sum([i.time for i in self.path]) + sum([i.stamina for i in self.path])
         return path_all_cost
     
     def reset(self):
