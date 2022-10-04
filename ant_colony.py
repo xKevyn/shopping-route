@@ -136,30 +136,26 @@ def draw_pheromone(ax, roads):
     lines.append(ax.plot(coord_x, coord_y, coord_z, c='red', linewidth=road.pheromone*5))
   return lines
 
-def ANN(ants, origin, destination, paths, max_iteration, percentage_of_dominant_path):
-    ...
+def ann(iteration, roads, ants, origin, destination, max_iteration=200, percentage_of_dominant_path=0.9):
+    while iteration < max_iteration or get_percentage_of_dominant_path(ants) < percentage_of_dominant_path: # termination conditions
+      # loop through all the ants to identify the path of each ant
+      for ant in ants:
+        # reset the path of the ant
+        ant.reset()
+        # identify the path of the ant
+        ant.get_path(origin, destination, alpha)
 
-def get_user_input(node_list):
-    destination_list = []
-    in_process = True
-    print("Please select your destination: ")
-    for i in range(len(node_list)):
-        print(str(i+1) + ". " + node_list[i][0])
-    origin = input("Please enter your current location number: ")
-    destination_list.append(node_list[int(origin)-1])
-
-    while in_process:
-        current_input = []
-        destination = input("Please enter your destination number: ")
-        destination_list.append(node_list[int(destination)-1])
-        for i in range(len(destination_list)):
-            current_input.append(destination_list[i][0])
-        print(current_input)
-        done = input("Do you wish do exit? (Y/N)")
-        if done == "Y":
-            in_process = False
-
-    return destination_list
+      # loop through all roads
+      for road in roads:
+        # evaporate the pheromone on the path
+        road.evaporate_pheromone(rho)
+        # deposit the pheromone
+        road.deposit_pheromone(ants)
+        
+      # increase iteration count
+      iteration += 1
+    [_, paths, _] = get_frequency_of_paths(ants)
+    return paths
 if __name__ == "__main__":
     
     location_list = [ # [ name, category, x, y, floor]
@@ -294,32 +290,17 @@ if __name__ == "__main__":
     percentage_of_dominant_path = 0.9
     
     ax = create_graph(nodes)
-    lines = draw_pheromone(ax, roads)
     
-    for i in range(len(shop_list)-1):
-        iteration = 0
-        while iteration < max_iteration or get_percentage_of_dominant_path(ants) < percentage_of_dominant_path: # termination conditions
-          # loop through all the ants to identify the path of each ant
-          for ant in ants:
-            # reset the path of the ant
-            ant.reset()
-            # identify the path of the ant
-            ant.get_path(shop_list[i], shop_list[i+1], alpha)
-          # loop through all roads
-          for road in roads:
-            # evaporate the pheromone on the path
-            road.evaporate_pheromone(rho)
-            # deposit the pheromone
-            road.deposit_pheromone(ants)
-          # increase iteration count
-           
-          iteration += 1
-        # after exiting the loop, return the most occurred path as the solution
-        # visualise
-        for l in lines:
-          del l
-        lines = draw_pheromone(ax, roads)
-        plt.pause(0.05)
+    iteration = 0
+    
+    solution = []
+    for i in range(len(shop_list)):
+        if(shop_list[i] != shop_list[-1]):
+            path = ann(iteration, roads, ants, shop_list[i], shop_list[i+1])
+        solution.append(path)
+        
+    # after exiting the loop, return the most occurred path as the solution
+    # visualise
        
         
 
