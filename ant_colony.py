@@ -111,6 +111,28 @@ def get_percentage_of_dominant_path(ants):
         percentage = max(frequencies)/sum(frequencies)
     return percentage
 
+def create_graph(nodes):
+      plt.figure()
+      ax = plt.axes(projection='3d')
+      nodes_x = [node.coordinates[0] for key, node in nodes.items()]
+      nodes_y = [node.coordinates[1] for key, node in nodes.items()]
+      nodes_z = [node.floor for key, node in nodes.items()]
+      ax.scatter(nodes_x, nodes_y, nodes_z)
+      for i, node in enumerate(nodes):
+          ax.text(nodes_x[i], nodes_y[i], nodes_z[i], node, size=7, color="k")
+      return ax
+    
+def draw_pheromone(ax, paths):
+  lines = []
+  for path in paths:
+    from_coord = path.connected_nodes[0].coordinates
+    to_coord = path.connected_nodes[1].coordinates
+    coord_x = [from_coord[0], to_coord[0]]
+    coord_y = [from_coord[1], to_coord[1]]
+    coord_z = [path.connected_nodes[0].floor, path.connected_nodes[1].floor]
+    lines.append(ax.plot(coord_x, coord_y, coord_z, c='red', linewidth=path.pheromone*5))
+  return lines
+
 if __name__ == "__main__":
     
     node_list = [ # [ name, category, x, y, floor]
@@ -130,7 +152,7 @@ if __name__ == "__main__":
         ["Poh Kong","Jewellery", 2, 3, 3],
         ["Brands Outlet" , "Fashion", 2, 7, 3],
         ["Elle" , "Fashion", 8, 7, 3],
-        ["Uniqlo-3" , "Fashion", 8, 8, 3],
+        ["Uniqlo-3" , "Fashion", 5, 7, 3],
         ["MR. DIY" , "Lifestyle & Home Living", 5, 1, 3],
         ["E1-1","Entrance", 0, 5, 1],
         ["E2-1","Entrance", 10, 5, 1],
@@ -145,24 +167,6 @@ if __name__ == "__main__":
         ["S-2","Stair", 5, 5, 2],
         ["S-3","Stair", 5, 5, 3]
         ]
-    
-    # E1/E2: accessway (entrance/exit)
-    # S: stair
-    # L: lift
-#     misc_list = [
-#     ["E1-1", 0, 5, 1],
-#     ["E2-1", 10, 5, 1],
-#     ["S-1", 5, 5, 1],
-#     ["L-1", 5, 9, 1],
-#     ["E1-2", 0, 5, 2],
-#     ["E2-2", 10, 5, 2],
-#     ["S-2", 5, 5, 2],
-#     ["L-2", 5, 9, 2],
-#     ["E1-3", 0, 5, 3],
-#     ["E2-3", 10, 5, 3],
-#     ["S-3", 5, 5, 3],
-#     ["L-3", 5, 9, 3]
-#    ]
     
     path_cost = [ # node1, node2, distance, time, stamina
         #floor 1
@@ -242,9 +246,9 @@ if __name__ == "__main__":
       paths.append(path)
       
     origin = nodes['Harvey Norman']
-    destination = nodes['Adidas']
+    destination = nodes['Brands Outlet']
     
-    n_ant = 10
+    n_ant = 20
     alpha = 1
     rho = 0.1
     
@@ -258,6 +262,9 @@ if __name__ == "__main__":
      # termination threshold
     max_iteration = 200
     percentage_of_dominant_path = 0.9
+    
+    ax = create_graph(nodes)
+    lines = draw_pheromone(ax, paths)
     
     iteration = 0
     while iteration < max_iteration or get_percentage_of_dominant_path(ants) < percentage_of_dominant_path: # termination conditions
@@ -274,37 +281,14 @@ if __name__ == "__main__":
         # deposit the pheromone
         path.deposit_pheromone(ants)
       # increase iteration count
+       
       iteration += 1
     # after exiting the loop, return the most occurred path as the solution
-    
-    
-    def create_graph(nodes):
-      fig = plt.figure()
-      ax = plt.axes(projection='3d')
-      nodes_x = [node.coordinates[0] for key, node in nodes.items()]
-      nodes_y = [node.coordinates[1] for key, node in nodes.items()]
-      nodes_z = [node.floor for key, node in nodes.items()]
-      ax.scatter(nodes_x, nodes_y, nodes_z)
-      return ax
-    
-    def draw_pheromone(ax, paths):
-      lines = []
-      for path in paths:
-        from_coord = path.connected_nodes[0].coordinates
-        to_coord = path.connected_nodes[1].coordinates
-        coord_x = [from_coord[0], to_coord[0]]
-        coord_y = [from_coord[1], to_coord[1]]
-        coord_z = [path.connected_nodes[0].floor, path.connected_nodes[1].floor]
-        lines.append(ax.plot(coord_x, coord_y, coord_z, c='k', linewidth=path.pheromone*2))
-      return lines
-    
-    ax = create_graph(nodes)
-    lines = draw_pheromone(ax, paths)
-    
     # visualise
     for l in lines:
       del l
     lines = draw_pheromone(ax, paths)
     plt.pause(0.05)
+       
         
 
