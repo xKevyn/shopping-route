@@ -133,6 +133,9 @@ def draw_pheromone(ax, paths):
     lines.append(ax.plot(coord_x, coord_y, coord_z, c='red', linewidth=path.pheromone*5))
   return lines
 
+def ANN(ants, origin, destination, paths, max_iteration, percentage_of_dominant_path):
+    
+
 if __name__ == "__main__":
     
     node_list = [ # [ name, category, x, y, floor]
@@ -294,3 +297,6 @@ if __name__ == "__main__":
           del l
         lines = draw_pheromone(ax, paths)
         plt.pause(0.05)
+       
+        
+
