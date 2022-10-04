@@ -153,7 +153,7 @@ def draw_path(ax, solution):
         count += 1
     return lines
 
-def ann(iteration, roads, ants, origin, destination, max_iteration=200, percentage_of_dominant_path=0.9):
+def aco(iteration, roads, ants, origin, destination, max_iteration=200, percentage_of_dominant_path=0.9):
     while iteration < max_iteration or get_percentage_of_dominant_path(ants) < percentage_of_dominant_path: # termination conditions
       # loop through all the ants to identify the path of each ant
       for ant in ants:
@@ -283,13 +283,13 @@ if __name__ == "__main__":
       nodes[node2].add_road(road)
       roads.append(road)
       
-    origin = nodes['Harvey Norman']
-    destination = nodes['Brands Outlet']
-    
-    shop_list = [nodes['E1-1']]
-    shop_list.append(origin)    
-    shop_list.append(destination)
-    shop_list.append(nodes['E1-1'])
+    shop_list = [nodes['E1-1'],
+             nodes['Harvey Norman'],
+             nodes['Brands Outlet'],
+             nodes['Starbuck'],
+             nodes['KFC'],
+             nodes['Poh Kong'],
+             nodes['E1-1']]
     
     n_ant = 20
     alpha = 1
@@ -313,7 +313,7 @@ if __name__ == "__main__":
     for i in range(len(shop_list)-1):
         for road in roads:
             road.set_pheromone(initial_pheromone)
-        ann(iteration, roads, ants, shop_list[i], shop_list[i+1])
+        aco(iteration, roads, ants, shop_list[i], shop_list[i+1])
         
         [freq, paths, nodes_used] = get_frequency_of_paths(ants)
         final_paths.append(paths)
