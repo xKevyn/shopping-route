@@ -145,6 +145,8 @@ def get_user_input(node_list):
     print("Please select your destination: ")
     for i in range(len(node_list)):
         print(str(i+1) + ". " + node_list[i][0])
+    origin = input("Please enter your current location number: ")
+    destination_list.append(node_list[int(origin)-1])
 
     while in_process:
         current_input = []
