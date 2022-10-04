@@ -300,6 +300,7 @@ if __name__ == "__main__":
           del l
         lines = draw_pheromone(ax, paths)
         plt.pause(0.05)
+        
        
         
 
