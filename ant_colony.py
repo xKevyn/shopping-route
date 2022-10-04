@@ -150,7 +150,7 @@ def get_user_input(node_list):
 
     while in_process:
         current_input = []
-        destination = input("Enter your destination number: ")
+        destination = input("Please enter your destination number: ")
         destination_list.append(node_list[int(destination)-1])
         for i in range(len(destination_list)):
             current_input.append(destination_list[i][0])
