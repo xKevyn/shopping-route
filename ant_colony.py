@@ -50,7 +50,7 @@ class Ant:
     # 2. if the last node is not destination, search for the next node to go
     # 3. after getting to the destination, remove the loop within the path, i.e. if there are repeated nodes in self.nodes, remove the nodes and the roads in between the repetition
         self.nodes.append(origin)
-        while self.nodes[-1] is not destination:
+        while self.nodes[-1] is not destination != self.nodes[-1].category is not destination:
             if len(self.path) > 0:
                 available_roads = [r for r in self.nodes[-1].roads if r is not self.path[-1]]
             else:
@@ -77,7 +77,8 @@ class Ant:
                     self.nodes = self.nodes[:node_indices[0]] + self.nodes[node_indices[-1]:]
                     self.path = self.path[:node_indices[0]] + self.path[node_indices[-1]:]
                     break
-        
+        return self.nodes[-1]
+    
     def get_path_distance(self):
         path_distance = sum([i.distance for i in self.path])
         return path_distance
@@ -160,7 +161,7 @@ def aco(iteration, roads, ants, origin, destination, max_iteration=200, percenta
         # reset the path of the ant
         ant.reset()
         # identify the path of the ant
-        ant.get_path(origin, destination, alpha)
+        destination = ant.get_path(origin, destination, alpha)
 
       # loop through all roads
       for road in roads:
@@ -171,7 +172,8 @@ def aco(iteration, roads, ants, origin, destination, max_iteration=200, percenta
         
       # increase iteration count
       iteration += 1
-      
+    return destination
+
 if __name__ == "__main__":
     
     location_list = [ # [ name, category, x, y, floor]
@@ -285,9 +287,9 @@ if __name__ == "__main__":
       
     shop_list = [nodes['E1-1'],
              nodes['Harvey Norman'],
-             nodes['Brands Outlet'],
+             "Fashion",
              nodes['Starbuck'],
-             nodes['KFC'],
+             "Supermarket",
              nodes['Poh Kong'],
              nodes['E1-1']]
     
@@ -313,7 +315,8 @@ if __name__ == "__main__":
     for i in range(len(shop_list)-1):
         for road in roads:
             road.set_pheromone(initial_pheromone)
-        aco(iteration, roads, ants, shop_list[i], shop_list[i+1])
+        destination = aco(iteration, roads, ants, shop_list[i], shop_list[i+1])
+        shop_list[i+1] = destination
         
         [freq, paths, nodes_used] = get_frequency_of_paths(ants)
         final_paths.append(paths)
