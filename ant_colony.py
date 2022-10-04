@@ -136,9 +136,9 @@ def draw_pheromone(ax, paths):
 if __name__ == "__main__":
     
     node_list = [ # [ name, category, x, y, floor]
-        ["Harvey Norman","Digital & Home Appliances", 2, 8, 1],
+        ["Harvey Norman","Digital & Home Appliances", 5, 3, 1],
         ["McDonald" , "Food & Beverages", 7, 7, 1],
-        ["KFC" , "Food & Beverages", 3, 4, 1],
+        ["KFC" , "Food & Beverages", 8, 4, 1],
         ["MyNews" , "Supermarket", 3, 6, 1],
         ["Optical Arts" , "Optical", 3, 4, 1],
         ["Lavender Bakery" , "Bakery", 2, 8, 1],
