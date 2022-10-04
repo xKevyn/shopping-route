@@ -133,8 +133,25 @@ def draw_pheromone(ax, roads):
     coord_x = [from_coord[0], to_coord[0]]
     coord_y = [from_coord[1], to_coord[1]]
     coord_z = [road.connected_nodes[0].floor, road.connected_nodes[1].floor]
-    lines.append(ax.plot(coord_x, coord_y, coord_z, c='red', linewidth=road.pheromone**1))
+    lines.append(ax.plot(coord_x, coord_y, coord_z, c='red', linewidth=road.pheromone*5))
   return lines
+
+def draw_path(ax, solution):
+    lines = []
+    colors = []
+    count = 0
+    for i in range(20):
+        colors.append('#%06X' % random.randint(0, 0xFFFFFF))
+    for path in solution:
+        for road in path[0]:
+            from_coord = road.connected_nodes[0].coordinates
+            to_coord = road.connected_nodes[1].coordinates
+            coord_x = [from_coord[0], to_coord[0]]
+            coord_y = [from_coord[1], to_coord[1]]
+            coord_z = [road.connected_nodes[0].floor, road.connected_nodes[1].floor]
+            lines.append(ax.plot(coord_x, coord_y, coord_z, c=colors[count], linewidth=1))
+        count += 1
+    return lines
 
 def ann(iteration, roads, ants, origin, destination, max_iteration=200, percentage_of_dominant_path=0.9):
     while iteration < max_iteration or get_percentage_of_dominant_path(ants) < percentage_of_dominant_path: # termination conditions
@@ -266,14 +283,13 @@ if __name__ == "__main__":
       nodes[node2].add_road(road)
       roads.append(road)
       
-    shop_list = [nodes['E1-1'],
-                 nodes['Harvey Norman'],
-                 nodes['Brands Outlet'],
-                 nodes['Starbuck'],
-                 nodes['KFC'],
-                 nodes['Poh Kong'],
-                 nodes['E1-1']]
+    origin = nodes['Harvey Norman']
+    destination = nodes['Brands Outlet']
     
+    shop_list = [nodes['E1-1']]
+    shop_list.append(origin)    
+    shop_list.append(destination)
+    shop_list.append(nodes['E1-1'])
     
     n_ant = 20
     alpha = 1
@@ -292,25 +308,26 @@ if __name__ == "__main__":
     iteration = 0
     
     solutions = []
+    final_paths = []
     
     for i in range(len(shop_list)-1):
         for road in roads:
             road.set_pheromone(initial_pheromone)
         ann(iteration, roads, ants, shop_list[i], shop_list[i+1])
         
-        [freq, _, nodes_used] = get_frequency_of_paths(ants)    
+        [freq, paths, nodes_used] = get_frequency_of_paths(ants)
+        final_paths.append(paths)
         solutions.append([n.name for n in nodes_used[freq.index(max(freq))]])
             # after exiting the loop, return the most occurred path as the solution
             # visualise
-        for l in lines:
-          del l
-        lines = draw_pheromone(ax, roads)
-        plt.pause(0.05)
             
     for i, solution in enumerate(solutions):
         if(i != len(solutions)-1):
             solution.pop(-1)
     solution = [item for sublist in solutions for item in sublist]
     print(solution)
-    
-
+    for l in lines:
+      del l
+    # lines = draw_pheromone(ax, roads)
+    draw_path(ax, final_paths)
+    plt.pause(0.05)
