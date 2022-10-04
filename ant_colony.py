@@ -1,3 +1,6 @@
+import random
+import matplotlib.pyplot as plt
+
 class Node:
     def __init__(self, name, category, floor):
         self.name = name
@@ -25,39 +28,70 @@ class Path:
         self.pheromone = pheromone
         
     def evaporate_pheromone(self, rho):
-    # update the pheromone of the road
+    # update the pheromone of the path
         self.pheromone = (1-rho)*self.pheromone
     
     def deposit_pheromone(self, ants):
     # 1. search for ants that uses the raod
     # 2. deposit pheromone using the inversely proportionate relationship between path length and deposited pheromone
         for ant in ants:
-            for road in ant.path:
-                if self == road:
-                    self.pheromone += 1/(ant.get_path_length())
+            for path in ant.path:
+                if self == path:
+                    self.pheromone += 1/(ant.get_path_all_cost())**1
                     break
 
 class Ant:
     def __init__(self):
-      self.shops = [] # shops the ant passes through, in sequence
+      self.nodes = [] # nodes the ant passes through, in sequence
       self.path = [] # paths the ant uses, in sequence
         
     def get_path(self, origin, destination, alpha):
-        ...
+        self.nodes.append(origin)
+        while self.nodes[-1] is not destination:
+            if len(self.path) > 0:
+                available_paths = [p for p in self.nodes[-1].paths if p is not self.path[-1]]
+            else:
+                available_paths = self.nodes[-1].paths
+            if len(available_paths) == 0:
+                available_paths = [self.path[-1]]
+            pheromones_alpha = [p.pheromone**alpha for p in available_paths]
+            probabilities = [pa/sum(pheromones_alpha) for pa in pheromones_alpha]
+            acc_probabilities = [sum(probabilities[:i+1]) for i,p in enumerate(probabilities)]
+            chosen_value = random.random()
+            for ai, ap in enumerate(acc_probabilities):
+                if ap > chosen_value:
+                    break
+            self.path.append(available_paths[ai])
+            if self.path[-1].connected_nodes[0] is self.nodes[-1]:
+                self.nodes.append(self.path[-1].connected_nodes[1])
+            else:
+                self.nodes.append(self.path[-1].connected_nodes[0])
+                
+        while len(set(self.nodes)) != len(self.nodes):
+            for i, node in enumerate(set(self.nodes)):
+                node_indices = [i for i, x in enumerate(self.nodes) if x == node]
+                if len(node_indices) > 1:
+                    self.nodes = self.nodes[:node_indices[0]] + self.nodes[node_indices[-1]:]
+                    self.path = self.path[:node_indices[0]] + self.path[node_indices[-1]:]
+                    break
         
-    def get_path_length(self):
-        path_length = sum([road.cost for road in self.path])
-        return path_length
-    # calculate path length based on self.path
-       # return path_length
+    def get_path_distance(self):
+        path_distance = sum([path.distance for path in self.path])
+        return path_distance
+    # calculate path distance based on self.path
+       # return path_distance
        
+    def get_path_all_cost(self):
+        path_all_cost = sum([path.distance for path in self.path]) + sum([path.time for path in self.path]) + sum([path.stamina for path in self.path])
+        return path_all_cost
+    
     def reset(self):
         self.path = []
-        self.cities = []
+        self.nodes = []
 
 def get_frequency_of_paths(ants):
     paths = []
-    cities = []
+    nodes = []
     frequencies = []
     for ant in ants:
         if len(ant.path) != 0:
@@ -65,9 +99,9 @@ def get_frequency_of_paths(ants):
                 frequencies[paths.index(ant.path)] += 1
             else:
                 paths.append(ant.path)
-                cities.append(ant.cities)
+                nodes.append(ant.nodes)
                 frequencies.append(1)
-    return [frequencies, paths, cities]
+    return [frequencies, paths, nodes]
 
 def get_percentage_of_dominant_path(ants):
     [frequencies, _, _] = get_frequency_of_paths(ants)
@@ -79,7 +113,7 @@ def get_percentage_of_dominant_path(ants):
 
 if __name__ == "__main__":
     
-    location_list = [ # [ name, category, x, y, floor]
+    node_list = [ # [ name, category, x, y, floor]
         ["Harvey Norman","Digital & Home Appliances", 2, 8, 1],
         ["McDonald" , "Food & Beverages", 7, 7, 1],
         ["KFC" , "Food & Beverages", 3, 4, 1],
@@ -93,7 +127,7 @@ if __name__ == "__main__":
         ["Popular" , "Leisure & Entertainment", 5, 2, 2],
         ["SenQ" , "Digital & Home Appliances", 8, 7, 2],
         ["Komugi" , "Bakery", 8, 2, 2],
-        ["Poh Kong ","Jewellery", 2, 3, 3],
+        ["Poh Kong","Jewellery", 2, 3, 3],
         ["Brands Outlet" , "Fashion", 2, 7, 3],
         ["Elle" , "Fashion", 8, 7, 3],
         ["Uniqlo-3" , "Fashion", 8, 8, 3],
@@ -130,7 +164,7 @@ if __name__ == "__main__":
 #     ["L-3", 5, 9, 3]
 #    ]
     
-    paths = [ # shop1, shop2, distance, time, stamina
+    path_cost = [ # node1, node2, distance, time, stamina
         #floor 1
         ["E1-1","Optical Arts", 110, 110, 110],
         ["E1-1","Lavender Bakery", 132, 132, 132],
@@ -148,7 +182,7 @@ if __name__ == "__main__":
         ["MyNews","McDonald", 200, 200, 200],
         ["MyNews","Lavender Bakery", 70, 70, 70],
         ["S-1","McDonald", 114, 114, 114],
-        ["Lavender Bakery","L1-1", 120, 120, 120],
+        ["Lavender Bakery","L-1", 120, 120, 120],
         ["L-1","McDonald", 100, 100, 100],
         #floor 2
         ["Adidas", "L-2", 126, 126, 126],
@@ -173,7 +207,7 @@ if __name__ == "__main__":
         #floor 3
         ["Poh Kong", "E1-3", 180, 180, 180],
         ["Poh Kong", "S-3", 50, 50, 50],
-        ["Poh Kong", "Uniqlo", 120, 120, 120],
+        ["Poh Kong", "Uniqlo-3", 120, 120, 120],
         ["Uniqlo-3", "S-3", 174, 174, 174],
         ["Uniqlo-3", "E2-3", 200, 200, 200],
         ["S-3", "E2-3", 180, 180, 180],
@@ -195,20 +229,20 @@ if __name__ == "__main__":
         ["Uniqlo-2","Uniqlo-3",50, 100, 100]
         ]
     
-    shops = {}
-    for coord1, coord2, name, floor in shop_list:
-      shops[name] = Shop(name)
-      shops[name].set_coordinates([coord1, coord2])
+    nodes = {}
+    for name, category, coord1, coord2, floor in node_list:
+      nodes[name] = Node(name, category, floor)
+      nodes[name].set_coordinates([coord1, coord2])
       
     paths = []
-    for shop1, shop2, distance, time, stamina in paths:
-      path = Path([shops[shop1], shops[shop2]], distance, time, stamina)
-      shops[shop1].add_path(path)
-      shops[shop2].add_path(path)
+    for node1, node2, distance, time, stamina in path_cost:
+      path = Path([nodes[node1], nodes[node2]], distance, time, stamina)
+      nodes[node1].add_path(path)
+      nodes[node2].add_path(path)
       paths.append(path)
       
-    origin = shops['Harvey Norman']
-    destination = shops['Family Mart']
+    origin = nodes['Harvey Norman']
+    destination = nodes['Adidas']
     
     n_ant = 10
     alpha = 1
@@ -221,10 +255,56 @@ if __name__ == "__main__":
       
     ants = [Ant() for _ in range(n_ant)]
     
+     # termination threshold
+    max_iteration = 200
+    percentage_of_dominant_path = 0.9
     
+    iteration = 0
+    while iteration < max_iteration or get_percentage_of_dominant_path(ants) < percentage_of_dominant_path: # termination conditions
+      # loop through all the ants to identify the path of each ant
+      for ant in ants:
+        # reset the path of the ant
+        ant.reset()
+        # identify the path of the ant
+        ant.get_path(origin, destination, alpha)
+      # loop through all paths
+      for path in paths:
+        # evaporate the pheromone on the path
+        path.evaporate_pheromone(rho)
+        # deposit the pheromone
+        path.deposit_pheromone(ants)
+      # increase iteration count
+      iteration += 1
+    # after exiting the loop, return the most occurred path as the solution
+    
+    
+    def create_graph(nodes):
+      fig = plt.figure()
+      ax = plt.axes(projection='3d')
+      nodes_x = [node.coordinates[0] for key, node in nodes.items()]
+      nodes_y = [node.coordinates[1] for key, node in nodes.items()]
+      nodes_z = [node.floor for key, node in nodes.items()]
+      ax.scatter(nodes_x, nodes_y, nodes_z)
+      return ax
+    
+    def draw_pheromone(ax, paths):
+      lines = []
+      for path in paths:
+        from_coord = path.connected_nodes[0].coordinates
+        to_coord = path.connected_nodes[1].coordinates
+        coord_x = [from_coord[0], to_coord[0]]
+        coord_y = [from_coord[1], to_coord[1]]
+        coord_z = [path.connected_nodes[0].floor, path.connected_nodes[1].floor]
+        lines.append(ax.plot(coord_x, coord_y, coord_z, c='k', linewidth=path.pheromone*2))
+      return lines
+    
+    ax = create_graph(nodes)
+    lines = draw_pheromone(ax, paths)
+    
+    # visualise
+    for l in lines:
+      del l
+    lines = draw_pheromone(ax, paths)
+    plt.pause(0.05)
         
-    # state_space = [
-    #     Path(Node('a', 't', 1), Node('b', 't', 1), 1, 1, 1), 
-    #     Path(Node('a', 't', 1), Node('c', 't', 1), 2, 2, 3), 
-    #     Path(Node('a', 't', 1), Node('d', 't', 1), 3, 3, 3)
-    #     ]
+
