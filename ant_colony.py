@@ -222,6 +222,10 @@ def get_user_input(location_list, nodes):
         print(current_input)
         if input("Do you wish do exit? (Y/N)") == "Y":
             in_process = False
+            
+        if current_input[-1][0] is not 'E':
+            destination_list.append("Entrance")
+            
     return destination_list
 
 if __name__ == "__main__":
