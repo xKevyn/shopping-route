@@ -175,6 +175,55 @@ def aco(iteration, roads, ants, origin, destination, max_iteration=200, percenta
       iteration += 1
     return destination
 
+def get_user_input(location_list, nodes):
+    destination_list = []
+    current_input = []
+    shop_list = []
+    category_list = []
+    in_process = True
+    print("Please select your destination: ")
+    for i in range(len(location_list)):
+        shop_list.append(location_list[i][0])
+        if location_list[i][1] not in category_list:
+            category_list.append(location_list[i][1])
+    print("------------ Shops -----------")
+    for i in range(len(shop_list)):
+        print(str(i+1) + ". " + shop_list[i])
+    print("---------- Category ----------")
+    for i in range(len(category_list)):
+        print(str(i+1) + ". " + category_list[i])  
+    
+    origin = input("Please enter your current location: ")
+    if origin in shop_list:
+        destination_list.append(nodes[origin])
+        current_input.append(origin)
+        print(current_input)
+    elif origin in category_list:
+        print("Please select shops only for your current location")
+        get_user_input(location_list, nodes)
+    else:
+        print("Please enter a valid input")
+        get_user_input(location_list, nodes)
+        
+
+    while in_process:
+        destination = input("Please enter your destination / Category: ")
+        if destination in shop_list:
+            destination_list.append(nodes[destination])
+            current_input.append(destination)
+        elif destination in category_list:
+            destination_list.append(destination)
+            current_input.append(destination)
+        else:
+            print("Please enter a valid input")
+            
+        print(current_input)
+        done = input("Do you wish do exit? (Y/N)")
+        if done == "Y":
+            in_process = False
+
+    return destination_list
+
 if __name__ == "__main__":
     
     location_list = [ # [ name, category, x, y, floor]
