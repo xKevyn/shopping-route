@@ -1,6 +1,7 @@
 import random
 import matplotlib.pyplot as plt
 
+# Node inside the shopping (shop/lift/stair/entrance/exit)
 class Node:
     def __init__(self, name, category, floor):
         self.name = name
@@ -15,7 +16,8 @@ class Node:
     def add_road(self, path):
         if path not in self.roads:
           self.roads.append(path)
-        
+
+# Road between two nodes
 class Road:
     def __init__(self, connected_nodes, distance, time, stamina, pheromone=0): # or random small number
         self.connected_nodes = connected_nodes
@@ -24,9 +26,11 @@ class Road:
         self.stamina = stamina
         self.pheromone = pheromone
         
+    # set the pheromone of the road
     def set_pheromone(self, pheromone):
         self.pheromone = pheromone
-        
+    
+    # evaporate the pheromone after each iteration
     def evaporate_pheromone(self, rho):
     # update the pheromone of the path
         self.pheromone = (1-rho)*self.pheromone
@@ -37,18 +41,20 @@ class Road:
         for ant in ants:
             for path in ant.path:
                 if self == path:
+                    # road with lower cost will have higher pheromone
                     self.pheromone += 1/(ant.get_path_all_cost())**1
                     break
 
 class Ant:
     def __init__(self):
-      self.nodes = [] # nodes the ant passes through, in sequence
-      self.path = [] # roads the ant uses, in sequence
-    
+        self.nodes = [] # nodes the ant passes through, in sequence
+        self.path = [] # roads the ant uses, in sequence
+      
+    # get the path from the origin to destination
     def get_path(self, origin, destination, alpha):
     # 1. append origin to the self.nodes
     # 2. if the last node is not destination, search for the next node to go
-    # 3. after getting to the destination, remove the loop within the path, i.e. if there are repeated nodes in self.nodes, remove the nodes and the roads in between the repetition
+    # 3. after getting to the destination, remove the loop within the path
         self.nodes.append(origin)
         while (self.nodes[-1] is destination) ^ (self.nodes[-1].category is not destination):
             if len(self.path) > 0:
@@ -69,7 +75,8 @@ class Ant:
                 self.nodes.append(self.path[-1].connected_nodes[1])
             else:
                 self.nodes.append(self.path[-1].connected_nodes[0])
-            
+        
+        # remove the loop
         while len(set(self.nodes)) != len(self.nodes):
             for i, node in enumerate(set(self.nodes)):
                 node_indices = [i for i, x in enumerate(self.nodes) if x == node]
@@ -79,12 +86,12 @@ class Ant:
                     break
         return self.nodes[-1]
     
+    # calculate path distance based on self.path
     def get_path_distance(self):
         path_distance = sum([i.distance for i in self.path])
         return path_distance
-    # calculate path distance based on self.path
-       # return path_distance
-       
+    
+    # calculate cost based on three factors (distance, time, stamina)
     def get_path_all_cost(self):
         path_all_cost = sum([i.distance for i in self.path]) + sum([i.time for i in self.path]) + sum([i.stamina for i in self.path])
         return path_all_cost
@@ -93,6 +100,7 @@ class Ant:
         self.path = []
         self.nodes = []
 
+# know how many times a path is used
 def get_frequency_of_paths(ants):
     paths = []
     nodes = []
@@ -107,6 +115,7 @@ def get_frequency_of_paths(ants):
                 frequencies.append(1)
     return [frequencies, paths, nodes]
 
+# know how many times a path is used
 def get_percentage_of_dominant_path(ants):
     [frequencies, _, _] = get_frequency_of_paths(ants)
     if len(frequencies) == 0:
@@ -115,6 +124,7 @@ def get_percentage_of_dominant_path(ants):
         percentage = max(frequencies)/sum(frequencies)
     return percentage
 
+# create the 3D graph for visualisation
 def create_graph(nodes):
       plt.figure()
       ax = plt.axes(projection='3d')
@@ -125,26 +135,17 @@ def create_graph(nodes):
       for i, node in enumerate(nodes):
           ax.text(nodes_x[i], nodes_y[i], nodes_z[i], node, size=7, color="k")
       return ax
-    
-def draw_pheromone(ax, roads):
-  lines = []
-  for road in roads:
-    from_coord = road.connected_nodes[0].coordinates
-    to_coord = road.connected_nodes[1].coordinates
-    coord_x = [from_coord[0], to_coord[0]]
-    coord_y = [from_coord[1], to_coord[1]]
-    coord_z = [road.connected_nodes[0].floor, road.connected_nodes[1].floor]
-    lines.append(ax.plot(coord_x, coord_y, coord_z, c='red', linewidth=road.pheromone*5))
-  return lines
 
-def draw_path(ax, solution):
+# draw the paths used on the 3D graph
+def draw_path(ax, solutions):
     lines = []
     colors = []
     count = 0
+    #generate random colour for each path
     for i in range(20):
         colors.append('#%06X' % random.randint(0, 0xFFFFFF))
-    for path in solution:
-        for road in path[0]:
+    for path in solutions:
+        for road in path:
             from_coord = road.connected_nodes[0].coordinates
             to_coord = road.connected_nodes[1].coordinates
             coord_x = [from_coord[0], to_coord[0]]
@@ -177,6 +178,7 @@ def aco(iteration, roads, ants, origin, destination, max_iteration=200, percenta
 if __name__ == "__main__":
     
     location_list = [ # [ name, category, x, y, floor]
+        # first floor
         ["Harvey Norman","Digital & Home Appliances", 5, 3, 1],
         ["McDonald" , "Food & Beverages", 7, 7, 1],
         ["KFC" , "Food & Beverages", 8, 4, 1],
@@ -184,17 +186,20 @@ if __name__ == "__main__":
         ["Optical Arts" , "Optical", 3, 4, 1],
         ["Lavender Bakery" , "Bakery", 2, 8, 1],
         ["7-Eleven" , "Supermarket", 9, 7, 1],
+        # second floor
         ["Adidas","Fashion", 2, 7, 2],
-        ["Uniqlo-2" , "Fashion", 5, 7, 2],
+        ["Uniqlo-2" , "Fashion", 8, 2, 2],
         ["Starbuck" , "Food & Beverages", 2, 2, 2],
         ["Popular" , "Leisure & Entertainment", 5, 2, 2],
         ["SenQ" , "Digital & Home Appliances", 8, 7, 2],
-        ["Komugi" , "Bakery", 8, 2, 2],
-        ["Poh Kong","Jewellery", 2, 3, 3],
-        ["Brands Outlet" , "Fashion", 2, 7, 3],
-        ["Elle" , "Fashion", 8, 7, 3],
-        ["Uniqlo-3" , "Fashion", 5, 7, 3],
-        ["MR. DIY" , "Lifestyle & Home Living", 5, 1, 3],
+        ["Komugi" , "Bakery", 5, 7, 2],
+        # floor 3
+        ["Poh Kong","Jewellery", 4, 3, 3],
+        ["Brands Outlet" , "Fashion", 2, 6, 3],
+        ["Elle" , "Fashion", 7, 6, 3],
+        ["Uniqlo-3" , "Fashion", 8, 2, 3],
+        ["MR. DIY" , "Lifestyle & Home Living", 5, 7, 3],
+        # transition
         ["E1-1","Entrance", 0, 5, 1],
         ["E2-1","Entrance", 10, 5, 1],
         ["E1-2","Entrance", 0, 5, 2],
@@ -210,7 +215,7 @@ if __name__ == "__main__":
         ]
     
     step_cost = [ # node1, node2, distance, time, stamina
-        #floor 1
+        # floor 1
         ["E1-1","Optical Arts", 110, 110, 110],
         ["E1-1","Lavender Bakery", 132, 132, 132],
         ["E1-1","MyNews", 105, 105, 105],
@@ -229,7 +234,7 @@ if __name__ == "__main__":
         ["S-1","McDonald", 114, 114, 114],
         ["Lavender Bakery","L-1", 120, 120, 120],
         ["L-1","McDonald", 100, 100, 100],
-        #floor 2
+        # floor 2
         ["Adidas", "L-2", 126, 126, 126],
         ["Komugi", "L-2", 54, 54, 54],
         ["SenQ", "L-2", 126, 126, 126],
@@ -249,7 +254,7 @@ if __name__ == "__main__":
         ["Uniqlo-2", "E2-2", 92, 92, 92],
         ["Starbuck", "Popular", 84, 84, 84],
         ["Popular", "Uniqlo-2", 72, 72, 72],
-        #floor 3
+        # floor 3
         ["Poh Kong", "E1-3", 180, 180, 180],
         ["Poh Kong", "S-3", 50, 50, 50],
         ["Poh Kong", "Uniqlo-3", 120, 120, 120],
@@ -265,7 +270,7 @@ if __name__ == "__main__":
         ["Brands Outlet", "S-3", 90, 90, 90],
         ["Brands Outlet", "E1-3", 30, 30, 30],
         ["S-3", "E1-3", 176, 176, 176],
-        #transition between floor
+        # transition between floor
         ["S-1","S-2",50, 100, 100],
         ["S-2","S-3",50, 100, 100],
         ["L-1","L-2",50, 25, 0],
@@ -284,7 +289,8 @@ if __name__ == "__main__":
       nodes[node1].add_road(road)
       nodes[node2].add_road(road)
       roads.append(road)
-      
+    
+    # shop list
     shop_list = [nodes['E1-1'],
              nodes['Harvey Norman'],
              "Fashion",
@@ -305,13 +311,12 @@ if __name__ == "__main__":
     max_iteration = 200
     percentage_of_dominant_path = 0.9
     
-    ax = create_graph(nodes)
-    lines = draw_pheromone(ax, roads)
-    iteration = 0
-    
     solutions = []
     final_paths = []
     
+    iteration = 0
+    
+    # finds the best path between the nodes
     for i in range(len(shop_list)-1):
         for road in roads:
             road.set_pheromone(initial_pheromone)
@@ -319,18 +324,17 @@ if __name__ == "__main__":
         shop_list[i+1] = destination
         
         [freq, paths, nodes_used] = get_frequency_of_paths(ants)
-        final_paths.append(paths)
+        final_paths.append(paths[freq.index(max(freq))])
         solutions.append([n.name for n in nodes_used[freq.index(max(freq))]])
-            # after exiting the loop, return the most occurred path as the solution
-            # visualise
+        # append the most used path to the final_paths
             
     for i, solution in enumerate(solutions):
         if(i != len(solutions)-1):
             solution.pop(-1)
+            
+    # after exiting the loop, return the most occurred path as the solution
+    # visualise
     solution = [item for sublist in solutions for item in sublist]
     print(solution)
-    for l in lines:
-      del l
-    # lines = draw_pheromone(ax, roads)
+    ax = create_graph(nodes)
     draw_path(ax, final_paths)
-    plt.pause(0.05)
