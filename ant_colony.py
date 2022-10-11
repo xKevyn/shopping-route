@@ -56,7 +56,7 @@ class Ant:
     # 2. if the last node is not destination, search for the next node to go
     # 3. after getting to the destination, remove the loop within the path
         self.nodes.append(origin)
-        while (self.nodes[-1] is destination) ^ (self.nodes[-1].category is not destination):
+        while self.nodes[-1] is not destination != self.nodes[-1].category is not destination: 
             if len(self.path) > 0:
                 available_roads = [r for r in self.nodes[-1].roads if r is not self.path[-1]]
             else:
