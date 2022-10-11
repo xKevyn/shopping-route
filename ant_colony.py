@@ -176,52 +176,52 @@ def aco(iteration, roads, ants, origin, destination, max_iteration=200, percenta
     return destination
 
 def get_user_input(location_list, nodes):
-    destination_list = []
-    current_input = []
-    shop_list = []
+    print("Please select your current location: ")
+
+    categories = [node[1] for node in location_list]
     category_list = []
-    in_process = True
-    print("Please select your destination: ")
-    for i in range(len(location_list)):
-        shop_list.append(location_list[i][0])
-        if location_list[i][1] not in category_list:
-            category_list.append(location_list[i][1])
-    print("------------ Shops -----------")
-    for i in range(len(shop_list)):
-        print(str(i+1) + ". " + shop_list[i])
-    print("---------- Category ----------")
-    for i in range(len(category_list)):
-        print(str(i+1) + ". " + category_list[i])  
+    [category_list.append(item) for item in categories if item not in category_list]
     
-    origin = input("Please enter your current location: ")
-    if origin in shop_list:
-        destination_list.append(nodes[origin])
-        current_input.append(origin)
-        print(current_input)
-    elif origin in category_list:
+    shop_list = [node[0] for node in location_list]
+    
+    print("------------ Shops -----------")
+    [print(shop) for shop in shop_list]
+    
+    print("---------- Category ----------")
+    [print(category) for category in category_list]
+    origin = input("Current location: ")
+    
+    if origin in category_list:
         print("Please select shops only for your current location")
         get_user_input(location_list, nodes)
-    else:
+    if origin not in shop_list:
         print("Please enter a valid input")
         get_user_input(location_list, nodes)
         
-
+    destination_list = [] 
+    current_input = []
+    
+    destination_list.append(nodes[origin])
+    current_input.append(origin)
+    
+    in_process = True
+    
     while in_process:
-        destination = input("Please enter your destination / Category: ")
-        if destination in shop_list:
-            destination_list.append(nodes[destination])
-            current_input.append(destination)
-        elif destination in category_list:
-            destination_list.append(destination)
-            current_input.append(destination)
-        else:
+        destination = input("Please enter your shop or category to visit: ")
+        print(type('test'))
+        if destination not in shop_list and destination not in category_list:
             print("Please enter a valid input")
             
+        if destination in shop_list:
+            destination_list.append(nodes[destination])
+        if destination in category_list:
+            destination_list.append(destination)
+            
+        current_input.append(destination)
+        print(destination_list)     
         print(current_input)
-        done = input("Do you wish do exit? (Y/N)")
-        if done == "Y":
+        if input("Do you wish do exit? (Y/N)") == "Y":
             in_process = False
-
     return destination_list
 
 if __name__ == "__main__":
