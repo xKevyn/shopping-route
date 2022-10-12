@@ -31,7 +31,7 @@ class Road:
     # update the pheromone of the path
         self.pheromone = (1-rho)*self.pheromone
     
-    def deposit_pheromone(self, ants):
+    def deposit_pheromone_distance(self, ants):
     # 1. search for ants that uses the raod
     # 2. deposit pheromone using the inversely proportionate relationship between path length and deposited pheromone
         for ant in ants:
@@ -39,6 +39,12 @@ class Road:
                 if self == path:
                     self.pheromone += 5/(ant.get_path_distance())**1
                     break
+                
+    def deposit_pheromone_all_cost(self, ants):
+        for ant in ants:
+            for path in ant.path:
+                if self == path:
+                    self.pheromone += 5/(ant.get_path_all_cost())**1
 
 class Ant:
     def __init__(self):
@@ -115,27 +121,20 @@ def get_percentage_of_dominant_path(ants):
         percentage = max(frequencies)/sum(frequencies)
     return percentage
 
-def create_graph(nodes):
-      plt.figure()
-      ax = plt.axes(projection='3d')
-      nodes_x = [node.coordinates[0] for key, node in nodes.items()]
-      nodes_y = [node.coordinates[1] for key, node in nodes.items()]
-      nodes_z = [node.floor for key, node in nodes.items()]
-      ax.scatter(nodes_x, nodes_y, nodes_z)
-      for i, node in enumerate(nodes):
-          ax.text(nodes_x[i], nodes_y[i], nodes_z[i], node, size=7, color="k")
-      return ax
-    
-def draw_pheromone(ax, roads):
-  lines = []
-  for road in roads:
-    from_coord = road.connected_nodes[0].coordinates
-    to_coord = road.connected_nodes[1].coordinates
-    coord_x = [from_coord[0], to_coord[0]]
-    coord_y = [from_coord[1], to_coord[1]]
-    coord_z = [road.connected_nodes[0].floor, road.connected_nodes[1].floor]
-    lines.append(ax.plot(coord_x, coord_y, coord_z, c='red', linewidth=road.pheromone*5))
-  return lines
+def create_graph(nodes, fitness_all_cost):
+    plt.figure()
+    if fitness_all_cost:
+        plt.suptitle("Optimal Path based on distance, time and stamina")
+    else:  
+        plt.suptitle("Optimal Path based on distance only")
+    ax = plt.axes(projection='3d')
+    nodes_x = [node.coordinates[0] for key, node in nodes.items()]
+    nodes_y = [node.coordinates[1] for key, node in nodes.items()]
+    nodes_z = [node.floor for key, node in nodes.items()]
+    ax.scatter(nodes_x, nodes_y, nodes_z)
+    for i, node in enumerate(nodes):
+        ax.text(nodes_x[i], nodes_y[i], nodes_z[i], node, size=7, color="k")
+    return ax
 
 def draw_path(ax, solution):
     lines = []
@@ -154,7 +153,16 @@ def draw_path(ax, solution):
         count += 1
     return lines
 
-def aco(iteration, roads, ants, origin, destination, max_iteration=200, percentage_of_dominant_path=0.9):
+def aco(iteration, 
+        roads, 
+        ants, 
+        origin, 
+        destination, 
+        fitness_all_cost, 
+        max_iteration=200, 
+        percentage_of_dominant_path=0.9, 
+        alpha=1,
+        rho=0.1):
     while iteration < max_iteration or get_percentage_of_dominant_path(ants) < percentage_of_dominant_path: # termination conditions
       # loop through all the ants to identify the path of each ant
       for ant in ants:
@@ -168,7 +176,10 @@ def aco(iteration, roads, ants, origin, destination, max_iteration=200, percenta
         # evaporate the pheromone on the path
         road.evaporate_pheromone(rho)
         # deposit the pheromone
-        road.deposit_pheromone(ants)
+        if fitness_all_cost:
+            road.deposit_pheromone_all_cost(ants)
+        else:
+            road.deposit_pheromone_distance(ants)
         
       # increase iteration count
       iteration += 1
@@ -207,7 +218,6 @@ def get_user_input(location_list, nodes):
     
     while in_process:
         destination = input("Please enter your shop or category to visit: ")
-        print(type('test'))
         if destination not in shop_list and destination not in category_list:
             print("Please enter a valid input")
             
@@ -216,17 +226,47 @@ def get_user_input(location_list, nodes):
         if destination in category_list:
             destination_list.append(destination)
             
-        current_input.append(destination)
-        print(destination_list)     
+        current_input.append(destination)   
         print(current_input)
         if input("Do you wish do exit? (Y/N)") == "Y":
             in_process = False
             
-    if current_input[-1][0] is not 'E':
+    if current_input[-1][0] != 'E':
         destination_list.append("Entrance")
         
     return destination_list
 
+def final_aco(shop_list, fitness_all_cost):
+    n_ant = 20
+    
+    initial_pheromone = 0.01
+    
+    ants = [Ant() for _ in range(n_ant)]
+    
+    iteration = 0
+    
+    solutions = []
+    final_paths = []
+    
+    for i in range(len(shop_list)-1):
+        for road in roads:
+            road.set_pheromone(initial_pheromone)
+        destination = aco(iteration, roads, ants, shop_list[i], shop_list[i+1], fitness_all_cost)
+        shop_list[i+1] = destination
+        
+        [freq, paths, nodes_used] = get_frequency_of_paths(ants)
+        final_paths.append(paths)
+        solutions.append([n.name for n in nodes_used[freq.index(max(freq))]])
+        
+    return solutions, final_paths
+
+def print_solution(solutions):        
+    for i, solution in enumerate(solutions):
+        if(i != len(solutions)-1):
+            solution.pop(-1)
+    solution = [item for sublist in solutions for item in sublist]
+    print(solution)
+    
 if __name__ == "__main__":
     
     location_list = [ # [ name, category, x, y, floor]
@@ -339,42 +379,17 @@ if __name__ == "__main__":
       roads.append(road)
       
     shop_list = get_user_input(location_list, nodes)
-    print(shop_list)
-    n_ant = 20
-    alpha = 1
-    rho = 0.1
     
-    initial_pheromone = 0.01
+    ax = create_graph(nodes, False)
+    ax2 = create_graph(nodes, True)
+   
     
-    ants = [Ant() for _ in range(n_ant)]
+    solution_distance_only, path_distance_only = final_aco(shop_list, False)
+    solution_all_cost, path_all_cost = final_aco(shop_list, True)
     
-     # termination threshold
-    max_iteration = 200
-    percentage_of_dominant_path = 0.9
-    
-    ax = create_graph(nodes)
-
-    iteration = 0
-    
-    solutions = []
-    final_paths = []
-    
-    for i in range(len(shop_list)-1):
-        for road in roads:
-            road.set_pheromone(initial_pheromone)
-        destination = aco(iteration, roads, ants, shop_list[i], shop_list[i+1])
-        shop_list[i+1] = destination
+    print_solution(solution_distance_only)
+    print_solution(solution_all_cost)
         
-        [freq, paths, nodes_used] = get_frequency_of_paths(ants)
-        final_paths.append(paths)
-        solutions.append([n.name for n in nodes_used[freq.index(max(freq))]])
-            
-    for i, solution in enumerate(solutions):
-        if(i != len(solutions)-1):
-            solution.pop(-1)
-    solution = [item for sublist in solutions for item in sublist]
-          
-    print(solution)
-
-    draw_path(ax, final_paths)
+    draw_path(ax, path_distance_only)
+    draw_path(ax2, path_all_cost)
     plt.pause(0.05)
