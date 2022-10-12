@@ -392,4 +392,3 @@ if __name__ == "__main__":
         
     draw_path(ax, path_distance_only)
     draw_path(ax2, path_all_cost)
-    plt.pause(0.05)
