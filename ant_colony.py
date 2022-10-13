@@ -229,12 +229,9 @@ def get_user_input(location_list, nodes):
       
     origin = input("Current location: ")
     
-    if origin in category_list:
-        print("Please select shops only for your current location")
-        get_user_input(location_list, nodes)
-    if origin not in shop_list and origin not in entrance_list:
-        print("Please enter a valid input")
-        get_user_input(location_list, nodes)
+    while origin not in shop_list and origin not in entrance_list:
+        print("Please enter a valid entrance or shop on your current location")
+        origin = input("Current location: ")
     
     destination_list = [] 
     current_input = []
