@@ -269,7 +269,7 @@ def get_user_input(location_list, nodes):
         
         print("Current input:", current_input)
         
-        if input("Do you wish do exit? (Y/N) ") == "Y":
+        if input("Do you wish do exit? (Y/N) ").upper() == "Y":
             in_process = False
     
             
