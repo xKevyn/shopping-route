@@ -352,7 +352,7 @@ if __name__ == "__main__":
         # second floor
         ["Adidas","Fashion", 2, 7, 2],
         ["Uniqlo-2" , "Fashion", 8, 2, 2],
-        ["Starbuck" , "Food & Beverages", 2, 2, 2],
+        ["Starbucks" , "Food & Beverages", 2, 2, 2],
         ["Popular" , "Leisure & Entertainment", 5, 2, 2],
         ["SenQ" , "Digital & Home Appliances", 8, 7, 2],
         ["Komugi" , "Bakery", 5, 7, 2],
@@ -410,12 +410,12 @@ if __name__ == "__main__":
         ["SenQ", "E2-2", 67, 67, 67],
         ["E1-2", "S-2", 180, 180, 180],
         ["E2-2", "S-2", 219, 219, 219],
-        ["Starbuck", "E1-2", 164, 164, 164],
-        ["Starbuck", "S-2", 158, 158, 158],
+        ["Starbucks", "E1-2", 164, 164, 164],
+        ["Starbucks", "S-2", 158, 158, 158],
         ["Popular", "S-2", 116, 116, 116],
         ["Uniqlo-2", "S-2", 149, 149, 149],
         ["Uniqlo-2", "E2-2", 92, 92, 92],
-        ["Starbuck", "Popular", 84, 84, 84],
+        ["Starbucks", "Popular", 84, 84, 84],
         ["Popular", "Uniqlo-2", 72, 72, 72],
         # floor 3
         ["Poh Kong", "E1-3", 180, 180, 180],
@@ -487,4 +487,5 @@ if __name__ == "__main__":
     #visualize the graph
     draw_path(ax, path_distance_only)
     draw_path(ax2, path_all_cost)
+
 
