@@ -28,13 +28,13 @@ class Road:
         self.pheromone = pheromone
         
     def evaporate_pheromone(self, rho):
-    # update the pheromone of the path
+    #update the pheromone of the path
         self.pheromone = (1-rho)*self.pheromone
     
     #function to deposit pheromone for distance only scenario 
     def deposit_pheromone_distance(self, ants):
-    # 1. search for ants that uses the raod
-    # 2. deposit pheromone using the inversely proportionate relationship between path length and deposited pheromone
+    #search for ants that uses the raod
+    #deposit pheromone using the inversely proportionate relationship between walking distance and deposited pheromone
         deposited_pheromone = 0
         for ant in ants:
             if self in ant.path:
@@ -58,14 +58,16 @@ class Ant:
   
         self.nodes.append(origin)  # append origin to the self.nodes
         
-        #if (the last node is not destination) or (is in the previous_nodes), search for the next node to go
+        #if (the last node is not destination) or (is in the previous_nodes), search for the next node to go to avoid same node being visited again
         #the XOR logic is used because the destination entered by the user can be node(shop) or category(string)
         while(not((self.nodes[-1] == destination) ^ (self.nodes[-1].category == destination)) or self.nodes[-1] in previous_nodes): 
             if len(self.path) > 0:
+                #does not allow the ant to use the most recent used road
                 available_roads = [r for r in self.nodes[-1].roads if r is not self.path[-1]]
             else:
                 available_roads = self.nodes[-1].roads
             if len(available_roads) == 0:
+                #only allow the ant to use the most recent used road if there are no other roads
                 available_roads = [self.path[-1]]
             pheromones_alpha = [r.pheromone**alpha for r in available_roads]
             probabilities = [pa/sum(pheromones_alpha) for pa in pheromones_alpha]
@@ -95,7 +97,8 @@ class Ant:
         path_distance = sum([i.distance for i in self.path]) # calculate path distance based on self.path
         return path_distance
     
-    #function to get the total cost include distance, time and stamina   
+    #function to get the total cost 
+    #include distance, time and stamina   
     def get_path_all_cost(self):
         # calculate the sum of path distance, time and stamina based on self.path
         path_all_cost = sum([i.distance for i in self.path]) + sum([i.time for i in self.path]) + sum([i.stamina for i in self.path])
@@ -105,6 +108,7 @@ class Ant:
         self.path = []
         self.nodes = []
 
+#calculate the frequency of each path used by the ants
 def get_frequency_of_paths(ants):
     paths = []
     nodes = []
@@ -119,6 +123,7 @@ def get_frequency_of_paths(ants):
                 frequencies.append(1)
     return [frequencies, paths, nodes]
 
+#find the proportion of most used path
 def get_percentage_of_dominant_path(ants):
     [frequencies, _, _] = get_frequency_of_paths(ants)
     if len(frequencies) == 0:
@@ -175,13 +180,13 @@ def aco(iteration,
         alpha=1,
         rho=0.1):
     while iteration < max_iteration and get_percentage_of_dominant_path(ants) < percentage_of_dominant_path: # termination conditions
-        # loop through all the ants to identify the path of each ant
+        #loop through all the ants to identify the path of each ant
         for ant in ants:
             ant.reset()
             # identify the path of the ant
             destination = ant.get_path(origin, destination, alpha, previous_nodes)
 
-        # loop through all roads
+        #loop through all roads
         for road in roads:
             # evaporate the pheromone on the path
             road.evaporate_pheromone(rho)
@@ -191,7 +196,7 @@ def aco(iteration,
             else:
                 road.deposit_pheromone_distance(ants)
           
-        # increase iteration count
+        #increase iteration count
         iteration += 1
     
     return destination #return the destination of the path
@@ -250,7 +255,7 @@ def get_user_input(location_list, nodes):
         origin = input("Current location: ")
         
     destination_list = [] #destination_list is used to store the shop(nodes) or category(string) that the user wanted to go
-    current_input = [] #current_input is used to store the user input in string format 
+    current_input = [] #current_input is used to store the user input in string format
     
     destination_list.append(nodes[origin]) 
     current_input.append(origin)
@@ -268,9 +273,9 @@ def get_user_input(location_list, nodes):
              
         #if user enter a shop
         if destination in shop_list:
-            #only proceeed if the shop is not selected before yet
+            #only proceed if the shop is not selected before yet
             if destination not in current_input and current_category_count[nodes[destination].category] != category_count[nodes[destination].category]:
-                destination_list.append(nodes[destination]) #create a nodes object using the shop name and append it into the destination list
+                destination_list.append(nodes[destination]) #create a node object using the shop name and append it into the destination list
                 current_input.append(destination)
                 current_category_count[nodes[destination].category] += 1 #added 1 to the number mapped on the shop's category in the current_category_count dictionary list
             else:
@@ -279,7 +284,7 @@ def get_user_input(location_list, nodes):
        #if user enter a category
         if destination in category_list:
             #only proceed if there is still remaining shop there are not been chosen yet
-            #to check this, compare the number mapped on the category in the two dictionary list, either is same or not
+            #to check this, compare the number mapped on the category in the two dictionary list, whether they are same or not
             if current_category_count[destination] != category_count[destination]:
                 destination_list.append(destination) #no need to create nodes object because category should be string variable
                 current_input.append(destination)
@@ -317,8 +322,8 @@ def final_aco(destination_list, fitness_all_cost):
     iteration = 0
     
     solutions = [] #a list used to store the sequence of the nodes in the optimal path 
-    final_paths = [] #a list used to store the sequence of the road in the optimal path
-    previous_nodes = [] #a list used to stored the desired shop that been visited previously
+    final_paths = [] #a list used to store the sequence of the roads in the optimal path
+    previous_nodes = [] #a list used to stored the desired shops that have been visited previously
     
     for i in range(len(destination_list)-1):
         for road in roads:
@@ -328,7 +333,7 @@ def final_aco(destination_list, fitness_all_cost):
         destination = aco(iteration, roads, ants, destination_list[i], destination_list[i+1], fitness_all_cost, previous_nodes)
         
         #since aco() function will return a node object, the destination_list[i+1] will be changed to the destination node returned from the aco function
-        #this is to make sure the destination_list[i] is node instead of string in next iteration
+        #this is to make sure the destination_list[i] is node instead of string in next iteration if the user enter a cateogory instead of a shop
         destination_list[i+1] = destination
         
         [freq, paths, nodes_used] = get_frequency_of_paths(ants)
@@ -465,7 +470,7 @@ if __name__ == "__main__":
       
     nodes_list = get_user_input(location_list, nodes) 
     
-    #plotting two graphs with different considering factor for optimal paths
+    #plotting two graphs with different considering factors for optimal paths
     ax = create_graph(nodes, False)
     ax2 = create_graph(nodes, True)
     
