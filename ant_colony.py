@@ -209,29 +209,14 @@ def get_user_input(location_list, nodes):
     category_list = category_list[:-3] #creating a list that stores the categories' name
     
     #a dictionary which indicating the count of each category
-    category_count = {"Digital & Home Appliances": 2,
-                  "Food & Beverages": 3,
-                  "Supermarket": 2,
-                  "Optical": 1,
-                  "Bakery": 2,
-                  "Fashion": 5,
-                  "Leisure & Entertainment": 1,
-                  "Jewellery": 1,
-                  "Lifestyle & Home Living": 1
-                  }
+    category_count = dict.fromkeys(category_list, 0)
+    
+    for node in location_list:
+        if category_count.get(node[1]) != None:
+            category_count[node[1]] += 1
     
     #a dictionary which indicating the current count of each category, it will be added 1 whenever user choose the category or shop from the category
-    current_category_count = {"Digital & Home Appliances": 0,
-                  "Food & Beverages": 0,
-                  "Supermarket": 0,
-                  "Optical": 0,
-                  "Bakery": 0,
-                  "Fashion": 0,
-                  "Leisure & Entertainment": 0,
-                  "Jewellery": 0,
-                  "Lifestyle & Home Living": 0
-                  }
-    
+    current_category_count = dict.fromkeys(category_list, 0)
     
     shop_list = [node[0] for node in location_list]
     entrance_list = shop_list[-12:-6] #creating a list of entrance
