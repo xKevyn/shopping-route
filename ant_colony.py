@@ -51,12 +51,12 @@ class Ant:
       self.nodes = [] # nodes the ant passes through, in sequence
       self.path = [] # roads the ant uses, in sequence
     
-    def get_path(self, origin, destination, alpha):
+    def get_path(self, origin, destination, alpha, previous_nodes):
     # 1. append origin to the self.nodes
     # 2. if the last node is not destination, search for the next node to go
     # 3. after getting to the destination, remove the loop within the path, i.e. if there are repeated nodes in self.nodes, remove the nodes and the roads in between the repetition
         self.nodes.append(origin)
-        while self.nodes[-1] is not destination != self.nodes[-1].category is not destination: 
+        while(not((self.nodes[-1] == destination) ^ (self.nodes[-1].category == destination)) or self.nodes[-1] in previous_nodes): 
             if len(self.path) > 0:
                 available_roads = [r for r in self.nodes[-1].roads if r is not self.path[-1]]
             else:
@@ -140,10 +140,10 @@ def draw_path(ax, solution):
     lines = []
     colors = []
     count = 0
-    for i in range(20):
+    for i in range(len(solution)):
         colors.append('#%06X' % random.randint(0, 0xFFFFFF))
     for path in solution:
-        for road in path[0]:
+        for road in path:
             from_coord = road.connected_nodes[0].coordinates
             to_coord = road.connected_nodes[1].coordinates
             coord_x = [from_coord[0], to_coord[0]]
@@ -154,60 +154,88 @@ def draw_path(ax, solution):
     return lines
 
 def aco(iteration, 
-        roads, 
-        ants, 
-        origin, 
-        destination, 
-        fitness_all_cost, 
-        max_iteration=200, 
-        percentage_of_dominant_path=0.9, 
+        roads,
+        ants,
+        origin,
+        destination,
+        fitness_all_cost,
+        previous_nodes,
+        max_iteration=200,
+        percentage_of_dominant_path=0.9,
         alpha=1,
         rho=0.1):
-    while iteration < max_iteration or get_percentage_of_dominant_path(ants) < percentage_of_dominant_path: # termination conditions
-      # loop through all the ants to identify the path of each ant
-      for ant in ants:
-        # reset the path of the ant
-        ant.reset()
-        # identify the path of the ant
-        destination = ant.get_path(origin, destination, alpha)
+    while iteration < max_iteration and get_percentage_of_dominant_path(ants) < percentage_of_dominant_path: # termination conditions
+        # loop through all the ants to identify the path of each ant
+        for ant in ants:
+            ant.reset()
+            # identify the path of the ant
+            destination = ant.get_path(origin, destination, alpha, previous_nodes)
 
-      # loop through all roads
-      for road in roads:
-        # evaporate the pheromone on the path
-        road.evaporate_pheromone(rho)
-        # deposit the pheromone
-        if fitness_all_cost:
-            road.deposit_pheromone_all_cost(ants)
-        else:
-            road.deposit_pheromone_distance(ants)
-        
-      # increase iteration count
-      iteration += 1
+        # loop through all roads
+        for road in roads:
+            # evaporate the pheromone on the path
+            road.evaporate_pheromone(rho)
+            # deposit the pheromone
+            if fitness_all_cost:
+                road.deposit_pheromone_all_cost(ants)
+            else:
+                road.deposit_pheromone_distance(ants)
+          
+        # increase iteration count
+        iteration += 1
+    
     return destination
 
 def get_user_input(location_list, nodes):
-    print("Please select your current location: ")
-
     categories = [node[1] for node in location_list]
     category_list = []
     [category_list.append(item) for item in categories if item not in category_list]
+    category_list = category_list[:-3]
+    
+    category_count = {"Digital & Home Appliances": 2,
+                  "Food & Beverages": 3,
+                  "Supermarket": 2,
+                  "Optical": 1,
+                  "Bakery": 2,
+                  "Fashion": 5,
+                  "Leisure & Entertainment": 1,
+                  "Jewellery": 1,
+                  "Lifestyle & Home Living": 1
+                  }
+    
+    current_category_count = {"Digital & Home Appliances": 0,
+                  "Food & Beverages": 0,
+                  "Supermarket": 0,
+                  "Optical": 0,
+                  "Bakery": 0,
+                  "Fashion": 0,
+                  "Leisure & Entertainment": 0,
+                  "Jewellery": 0,
+                  "Lifestyle & Home Living": 0
+                  }
     
     shop_list = [node[0] for node in location_list]
+    entrance_list = shop_list[-12:-6]
+    shop_list = shop_list[:-12]
+    
+    print("---------- Entrances --------")
+    [print(entrance) for entrance in entrance_list]
     
     print("------------ Shops -----------")
     [print(shop) for shop in shop_list]
     
-    print("---------- Category ----------")
+    print("---------- Categories ----------")
     [print(category) for category in category_list]
+      
     origin = input("Current location: ")
     
     if origin in category_list:
         print("Please select shops only for your current location")
         get_user_input(location_list, nodes)
-    if origin not in shop_list:
+    if origin not in shop_list and origin not in entrance_list:
         print("Please enter a valid input")
         get_user_input(location_list, nodes)
-        
+    
     destination_list = [] 
     current_input = []
     
@@ -217,27 +245,44 @@ def get_user_input(location_list, nodes):
     in_process = True
     
     while in_process:
-        destination = input("Please enter your shop or category to visit: ")
-        if destination not in shop_list and destination not in category_list:
+        destination = input("Please enter your shop or category to visit or an exit: ")
+        print()
+        if destination not in shop_list and destination not in category_list and destination not in entrance_list:
             print("Please enter a valid input")
             
         if destination in shop_list:
-            destination_list.append(nodes[destination])
+            if destination not in current_input and current_category_count[nodes[destination].category] != category_count[nodes[destination].category]:
+                destination_list.append(nodes[destination])
+                current_input.append(destination)
+                current_category_count[nodes[destination].category] += 1
+            else:
+                print("The destination has been selected before.")
         if destination in category_list:
-            destination_list.append(destination)
-            
-        current_input.append(destination)   
-        print(current_input)
-        if input("Do you wish do exit? (Y/N)") == "Y":
+            if current_category_count[destination] != category_count[destination]:
+                destination_list.append(destination)
+                current_input.append(destination)
+                current_category_count[destination] += 1
+            else:
+                print("There is no remaining shop in this category.")
+        if destination in entrance_list:
+            destination_list.append(nodes[destination])
+            current_input.append(destination)
+            print("Current input:", current_input)
+            break
+        
+        print("Current input:", current_input)
+        
+        if input("Do you wish do exit? (Y/N) ") == "Y":
             in_process = False
+    
             
-    if current_input[-1][0] != 'E':
+    if current_input[-1][0] != 'E' or current_input[-1][2] != '-':
         destination_list.append("Entrance")
         
     return destination_list
 
 def final_aco(shop_list, fitness_all_cost):
-    n_ant = 50
+    n_ant = 20
     
     initial_pheromone = 0.01
     
@@ -247,18 +292,22 @@ def final_aco(shop_list, fitness_all_cost):
     
     solutions = []
     final_paths = []
+    previous_nodes = []
     
     for i in range(len(shop_list)-1):
         for road in roads:
             road.set_pheromone(initial_pheromone)
-        destination = aco(iteration, roads, ants, shop_list[i], shop_list[i+1], fitness_all_cost)
+        destination = aco(iteration, roads, ants, shop_list[i], shop_list[i+1], fitness_all_cost, previous_nodes)
         shop_list[i+1] = destination
         
         [freq, paths, nodes_used] = get_frequency_of_paths(ants)
-        final_paths.append(paths)
+        final_paths.append(paths[freq.index(max(freq))])
         solutions.append([n.name for n in nodes_used[freq.index(max(freq))]])
+        previous_nodes.append(nodes[solutions[-1][-1]])
+        for ant in ants:
+            ant.reset()
         
-    return solutions, final_paths
+    return shop_list, solutions, final_paths
 
 def print_solution(solutions):        
     for i, solution in enumerate(solutions):
@@ -266,10 +315,11 @@ def print_solution(solutions):
             solution.pop(-1)
     solution = [item for sublist in solutions for item in sublist]
     print(solution)
-    
+
 if __name__ == "__main__":
-    
+    plt.close('all')
     location_list = [ # [ name, category, x, y, floor]
+        # first floor
         ["Harvey Norman","Digital & Home Appliances", 5, 3, 1],
         ["McDonald" , "Food & Beverages", 7, 7, 1],
         ["KFC" , "Food & Beverages", 8, 4, 1],
@@ -277,17 +327,20 @@ if __name__ == "__main__":
         ["Optical Arts" , "Optical", 3, 4, 1],
         ["Lavender Bakery" , "Bakery", 2, 8, 1],
         ["7-Eleven" , "Supermarket", 9, 7, 1],
+        # second floor
         ["Adidas","Fashion", 2, 7, 2],
-        ["Uniqlo-2" , "Fashion", 5, 7, 2],
+        ["Uniqlo-2" , "Fashion", 8, 2, 2],
         ["Starbuck" , "Food & Beverages", 2, 2, 2],
         ["Popular" , "Leisure & Entertainment", 5, 2, 2],
         ["SenQ" , "Digital & Home Appliances", 8, 7, 2],
-        ["Komugi" , "Bakery", 8, 2, 2],
-        ["Poh Kong","Jewellery", 2, 3, 3],
-        ["Brands Outlet" , "Fashion", 2, 7, 3],
-        ["Elle" , "Fashion", 8, 7, 3],
-        ["Uniqlo-3" , "Fashion", 5, 7, 3],
-        ["MR. DIY" , "Lifestyle & Home Living", 5, 1, 3],
+        ["Komugi" , "Bakery", 5, 7, 2],
+        # floor 3
+        ["Poh Kong","Jewellery", 4, 3, 3],
+        ["Brands Outlet" , "Fashion", 2, 6, 3],
+        ["Elle" , "Fashion", 7, 6, 3],
+        ["Uniqlo-3" , "Fashion", 8, 2, 3],
+        ["MR. DIY" , "Lifestyle & Home Living", 5, 7, 3],
+        # transition
         ["E1-1","Entrance", 0, 5, 1],
         ["E2-1","Entrance", 10, 5, 1],
         ["E1-2","Entrance", 0, 5, 2],
@@ -303,7 +356,7 @@ if __name__ == "__main__":
         ]
     
     step_cost = [ # node1, node2, distance, time, stamina
-        #floor 1
+        # floor 1
         ["E1-1","Optical Arts", 110, 110, 110],
         ["E1-1","Lavender Bakery", 132, 132, 132],
         ["E1-1","MyNews", 105, 105, 105],
@@ -322,7 +375,7 @@ if __name__ == "__main__":
         ["S-1","McDonald", 114, 114, 114],
         ["Lavender Bakery","L-1", 120, 120, 120],
         ["L-1","McDonald", 100, 100, 100],
-        #floor 2
+        # floor 2
         ["Adidas", "L-2", 126, 126, 126],
         ["Komugi", "L-2", 54, 54, 54],
         ["SenQ", "L-2", 126, 126, 126],
@@ -342,7 +395,7 @@ if __name__ == "__main__":
         ["Uniqlo-2", "E2-2", 92, 92, 92],
         ["Starbuck", "Popular", 84, 84, 84],
         ["Popular", "Uniqlo-2", 72, 72, 72],
-        #floor 3
+        # floor 3
         ["Poh Kong", "E1-3", 180, 180, 180],
         ["Poh Kong", "S-3", 50, 50, 50],
         ["Poh Kong", "Uniqlo-3", 120, 120, 120],
@@ -353,12 +406,12 @@ if __name__ == "__main__":
         ["Elle", "S-3", 72, 72, 72],
         ["Elle", "L-3", 150, 150, 150],
         ["MR. DIY", "S-3", 70, 70, 70],
-        ["Uniqlo-3", "L-3", 50, 50, 50],
+        ["MR. DIY", "L-3", 50, 50, 50],
         ["Brands Outlet", "L-3", 160, 160, 160],
         ["Brands Outlet", "S-3", 90, 90, 90],
         ["Brands Outlet", "E1-3", 30, 30, 30],
         ["S-3", "E1-3", 176, 176, 176],
-        #transition between floor
+        # transition between floor
         ["S-1","S-2",50, 100, 100],
         ["S-2","S-3",50, 100, 100],
         ["L-1","L-2",50, 25, 0],
@@ -369,26 +422,35 @@ if __name__ == "__main__":
     
     nodes = {}
     for name, category, coord1, coord2, floor in location_list:
-      nodes[name] = Node(name, category, floor)
-      nodes[name].set_coordinates([coord1, coord2])
+        nodes[name] = Node(name, category, floor)
+        nodes[name].set_coordinates([coord1, coord2])
     roads = []
     for node1, node2, distance, time, stamina in step_cost:
-      road = Road([nodes[node1], nodes[node2]], distance, time, stamina)
-      nodes[node1].add_road(road)
-      nodes[node2].add_road(road)
-      roads.append(road)
+        road = Road([nodes[node1], nodes[node2]], distance, time, stamina)
+        nodes[node1].add_road(road)
+        nodes[node2].add_road(road)
+        roads.append(road)
       
-    shop_list = get_user_input(location_list, nodes)
+    nodes_list = get_user_input(location_list, nodes) 
     
     ax = create_graph(nodes, False)
     ax2 = create_graph(nodes, True)
-   
     
-    solution_distance_only, path_distance_only = final_aco(shop_list, False)
-    solution_all_cost, path_all_cost = final_aco(shop_list, True)
+    shop_list_distance_only, solution_distance_only, path_distance_only = final_aco(nodes_list.copy(), False)
+    shop_list_all_cost, solution_all_cost, path_all_cost = final_aco(nodes_list.copy(), True)
     
+    print()
+    print("Places to go considering only distance:")
+    print([node.name for node in shop_list_distance_only])
+    print()
+    print("Path to go considering only distance:")
     print_solution(solution_distance_only)
+    print()
+    print("Places to go considering distance, time, stamina:")
+    print([node.name for node in shop_list_all_cost])
+    print()
+    print("Path to go considering distance, time, stamina:")   
     print_solution(solution_all_cost)
-        
+    
     draw_path(ax, path_distance_only)
     draw_path(ax2, path_all_cost)
